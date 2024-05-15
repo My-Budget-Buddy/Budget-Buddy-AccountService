@@ -18,7 +18,7 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE Account a SET a.userId = :userId, a.type = :type, a.accountNumber = :accountNumber, "
+    @Query("UPDATE Account a SET a.userId = :userId, a.type = :_type, a.accountNumber = :accountNumber, "
             + "a.routingNumber = :routingNumber, a.institution = :institution, "
             + "a.investmentRate = :investmentRate, a.startingBalance = :startingBalance "
             + "WHERE a.id = :id")
