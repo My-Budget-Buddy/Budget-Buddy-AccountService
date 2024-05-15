@@ -52,7 +52,7 @@ public class AccountService {
 
             String errorString;
             if (errors.size() > 1) {
-                errorString = "No " + String.join(", ", errors.subList(0, errors.size() - 1)) + ", or " + errors.get(errors.size() - 1);
+                errorString = "No " + String.join(", ", errors.subList(0, errors.size() - 1)) + " or " + errors.get(errors.size() - 1);
             } else {
                 errorString = "No " + errors.get(0);
             }
