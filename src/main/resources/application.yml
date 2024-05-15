@@ -9,6 +9,10 @@ spring:
             enabled: ALWAYS
     application:
         name: budget-buddy-account-service
+    
+    jpa:
+        hibernate:
+            ddl-auto: update
 
 server:
     port: 8080
