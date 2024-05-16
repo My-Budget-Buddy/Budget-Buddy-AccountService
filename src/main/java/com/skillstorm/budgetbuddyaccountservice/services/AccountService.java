@@ -8,7 +8,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.NotEnoughInformationException;
+import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
 
@@ -18,16 +20,24 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private AccountMapper accountMapper;
+
     // Get Accounts by userId
-    public List<Account> getAccountsByUserId(String userId) {
-        return accountRepository.findByUserId(userId);
+    public List<AccountDto> getAccountsByUserId(String userId) {
+        List<Account> accounts = accountRepository.findByUserId(userId);
+        List<AccountDto> accountDtos = new ArrayList<>(accounts.size());
+        for (Account account : accounts) {
+            accountDtos.add(accountMapper.toDto(account));
+        }
+        return accountDtos;
     }
 
     // Get Accounts by accountId and userId
-    public Optional<Account> getAccountByAccountIdAndUserId(String userId, int id) {
+    public Optional<AccountDto> getAccountByAccountIdAndUserId(String userId, int id) {
         Optional<Account> account = accountRepository.findById(id);
         if (account.isPresent() && account.get().getUserId().equals(userId)) {
-            return account;
+            return Optional.of(accountMapper.toDto(account.get()));
         }
         return Optional.empty();
     }
