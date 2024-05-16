@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.services.AccountService;
 
@@ -27,15 +28,15 @@ public class AccountController {
 
     // Get Accounts by userId
     @GetMapping("/{userId}")
-    public ResponseEntity<List<Account>> getAccountsByUserId(@PathVariable String userId) {
-        List<Account> accounts = accountService.getAccountsByUserId(userId);
+    public ResponseEntity<List<AccountDto>> getAccountsByUserId(@PathVariable String userId) {
+        List<AccountDto> accounts = accountService.getAccountsByUserId(userId);
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
     // Get Account by accountId and userId
     @GetMapping("/{userId}/{id}")
-    public ResponseEntity<Account> getAccountByAccountIdAndUserId(@PathVariable String userId, @PathVariable int id) {
-        Optional<Account> account = accountService.getAccountByAccountIdAndUserId(userId, id);
+    public ResponseEntity<AccountDto> getAccountByAccountIdAndUserId(@PathVariable String userId, @PathVariable int id) {
+        Optional<AccountDto> account = accountService.getAccountByAccountIdAndUserId(userId, id);
         if (account.isPresent()) {
             return new ResponseEntity<>(account.get(), HttpStatus.OK);
         } else {
@@ -71,4 +72,5 @@ public class AccountController {
         accountService.deleteAccount(id, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 }
