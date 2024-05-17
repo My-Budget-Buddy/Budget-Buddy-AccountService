@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
@@ -57,10 +58,14 @@ public class AccountService {
 
     // Get a list of transfers by userId from transaction microservice
     private List<Transaction> getTransactionsByUserId(String userId) {
-        return restClient.get()
-                         .uri("/transactions/user/{userId}", userId)
-                         .retrieve()
-                         .body(new ParameterizedTypeReference<List<Transaction>>() {});
+        try {
+            return restClient.get()
+                            .uri("/transactions/user/{userId}", userId)
+                            .retrieve()
+                            .body(new ParameterizedTypeReference<List<Transaction>>() {});
+        } catch (HttpClientErrorException e) {
+            return new ArrayList<>(0);
+        }
     }
 
     // Calculate the current balance of each account
