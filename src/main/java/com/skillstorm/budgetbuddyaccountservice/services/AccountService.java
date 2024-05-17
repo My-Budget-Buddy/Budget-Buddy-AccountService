@@ -44,17 +44,13 @@ public class AccountService {
 
     // Create an account based on userId
     public Account createAccount(Account account, String userId) {
-        if (account.getAccountNumber() == null || account.getInstitution() == null || account.getRoutingNumber() == null
-                || account.getType() == null) {
+        if (account.getAccountNumber() == null || account.getInstitution() == null || account.getType() == null) {
             List<String> errors = new ArrayList<>();
             if (account.getAccountNumber() == null) {
                 errors.add("account number");
             }
             if (account.getInstitution() == null) {
                 errors.add("institution");
-            }
-            if (account.getRoutingNumber() == null) {
-                errors.add("routing number");
             }
             if (account.getType() == null) {
                 errors.add("type");
@@ -69,6 +65,12 @@ public class AccountService {
 
             throw new NotEnoughInformationException(errorString);
         }
+
+        // Make sure starting balance is never null
+        if (account.getStartingBalance() == null) {
+            account.setStartingBalance(new BigDecimal(0));
+        }
+
         account.setId(0); // Make sure the user cannot change an existing account on accident
         account.setUserId(userId);
         return accountRepository.save(account);
