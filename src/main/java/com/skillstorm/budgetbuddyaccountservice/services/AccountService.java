@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -23,15 +26,22 @@ import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
 @Service
 public class AccountService {
 
-    private RestClient restClient = RestClient.builder()
-            .baseUrl("http://localhost:8083")
-            .build();
+    private final LoadBalancerClient loadBalancerClient;
+    private final RestClient restClient;
 
     @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
     private AccountMapper accountMapper;
+
+    @Autowired
+    public AccountService(LoadBalancerClient loadBalancerClient) {
+        this.loadBalancerClient = loadBalancerClient;
+        this.restClient = RestClient.builder()
+                .build();
+    }
+
 
     // Get Accounts by userId
     public List<AccountDto> getAccountsByUserId(String userId) {
@@ -90,12 +100,20 @@ public class AccountService {
 
 
     // Get a list of transfers by userId from transaction microservice
-    private List<Transaction> getTransactionsByUserId(String userId) {
+    public List<Transaction> getTransactionsByUserId(String userId) {
         try {
-            return restClient.get()
-                            .uri("/transactions/user/{userId}", userId)
-                            .retrieve()
-                            .body(new ParameterizedTypeReference<List<Transaction>>() {});
+            ServiceInstance instance = loadBalancerClient.choose("transaction_service");
+            if (instance != null) {
+                String serviceUrl = instance.getUri().toString();
+                String fullUrl = serviceUrl + "/transactions/user/" + userId;
+
+                return restClient.get()
+                                 .uri(fullUrl)
+                                 .retrieve()
+                                 .body(new ParameterizedTypeReference<List<Transaction>>() {});
+            } else {
+                throw new IllegalStateException("No instances available for transaction_service");
+            }
         } catch (HttpClientErrorException e) {
             return new ArrayList<>(0);
         }
