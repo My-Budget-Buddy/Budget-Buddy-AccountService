@@ -51,10 +51,43 @@ public class AccountService {
             AccountDto accountDto = accountMapper.toDto(account);
             accountDto.setCurrentBalance(currentBalance);
 
+            accountDto.setAccountNumber(maskAccountNumber(account.getAccountNumber()));
+            accountDto.setRoutingNumber(maskRoutingNumber(account.getRoutingNumber()));
+
             accountDtos.add(accountDto);
         }
         return accountDtos;
     }
+
+    // Mask account number
+    private String maskAccountNumber(String accountNumber) {
+        if (accountNumber == null || accountNumber.length() <= 4) {
+            return accountNumber;
+        }
+        int length = accountNumber.length();
+        StringBuilder masked = new StringBuilder();
+        for (int i = 0; i < length - 4; i++) {
+            masked.append('*');
+        }
+        masked.append(accountNumber.substring(length - 4));
+        return masked.toString();
+    }
+
+    // Mask routing number
+    private String maskRoutingNumber(String routingNumber){
+        if(routingNumber == null || routingNumber.length() <= 4){
+            return routingNumber;
+        }
+
+        int length = routingNumber.length();
+        StringBuilder masked = new StringBuilder();
+        for (int i = 0; i < length - 4; i++) {
+            masked.append('*');
+        }
+        masked.append(routingNumber.substring(length - 4));
+        return masked.toString();
+    }
+
 
     // Get a list of transfers by userId from transaction microservice
     private List<Transaction> getTransactionsByUserId(String userId) {
@@ -95,6 +128,9 @@ public class AccountService {
     
             AccountDto accountDto = accountMapper.toDto(account);
             accountDto.setCurrentBalance(currentBalance);
+
+            accountDto.setAccountNumber(maskAccountNumber(account.getAccountNumber()));
+            accountDto.setRoutingNumber(maskRoutingNumber(account.getRoutingNumber()));
     
             return Optional.of(accountDto);
         }
