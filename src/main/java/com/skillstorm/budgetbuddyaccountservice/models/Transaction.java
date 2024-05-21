@@ -9,14 +9,14 @@ public class Transaction {
     private int accountId;
     private String vendorName;
     private double amount;
-    private TransactionCategory category;
+    private String category;
     private String description;
     private LocalDate date;
     
     public Transaction() {
     }
 
-    public Transaction(int userId, int accountId, String vendorName, double amount, TransactionCategory category,
+    public Transaction(int userId, int accountId, String vendorName, double amount, String category,
             String description, LocalDate date) {
         this.userId = userId;
         this.accountId = accountId;
@@ -28,7 +28,7 @@ public class Transaction {
     }
 
     public Transaction(int transactionId, int userId, int accountId, String vendorName, double amount,
-            TransactionCategory category, String description, LocalDate date) {
+            String category, String description, LocalDate date) {
         this.transactionId = transactionId;
         this.userId = userId;
         this.accountId = accountId;
@@ -79,11 +79,11 @@ public class Transaction {
         this.amount = amount;
     }
 
-    public TransactionCategory getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(TransactionCategory category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 
