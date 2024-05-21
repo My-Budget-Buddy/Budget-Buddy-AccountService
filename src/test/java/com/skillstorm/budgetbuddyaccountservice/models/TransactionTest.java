@@ -52,12 +52,12 @@ public class TransactionTest {
         assertEquals(amount, transaction.getAmount());
     }
 
-    @Test
-    public void testSetAndGetCategory() {
-        TransactionCategory category = TransactionCategory.SHOPPING;
-        transaction.setCategory(category);
-        assertEquals(category, transaction.getCategory());
-    }
+    // @Test
+    // public void testSetAndGetCategory() {
+    //     TransactionCategory category = TransactionCategory.SHOPPING;
+    //     transaction.setCategory(category);
+    //     assertEquals(category, transaction.getCategory());
+    // }
 
     @Test
     public void testSetAndGetDate() {

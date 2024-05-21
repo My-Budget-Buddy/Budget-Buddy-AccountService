@@ -19,7 +19,6 @@ import com.skillstorm.budgetbuddyaccountservice.exceptions.NotEnoughInformationE
 import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.models.Transaction;
-import com.skillstorm.budgetbuddyaccountservice.models.TransactionCategory;
 import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
 
 @Service
@@ -121,7 +120,7 @@ public class AccountService {
         BigDecimal balance = startingBalance;
 
         for (Transaction transaction : transactions) {
-            if (TransactionCategory.INCOME.equals(transaction.getCategory())) {
+            if ("Income".equals(transaction.getCategory())) {
                 balance = balance.add(BigDecimal.valueOf(transaction.getAmount()));
             } else {
                 balance = balance.subtract(BigDecimal.valueOf(transaction.getAmount()));
