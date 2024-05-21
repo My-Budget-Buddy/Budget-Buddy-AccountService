@@ -8,8 +8,8 @@ spring:
         ansi:
             enabled: ALWAYS
     application:
-        name: budget-buddy-account-service
-    
+        name: account-service
+
     jpa:
         hibernate:
             ddl-auto: update
