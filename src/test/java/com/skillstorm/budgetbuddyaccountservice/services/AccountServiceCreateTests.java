@@ -24,10 +24,9 @@ import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.models.Account.AccountType;
 import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
-import com.skillstorm.budgetbuddyaccountservice.services.AccountService;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceTests {
+public class AccountServiceCreateTests {
 
     @InjectMocks
     private static AccountService accountService;
@@ -112,29 +111,5 @@ public class AccountServiceTests {
 
         assertEquals(expectedAccounts, actualAccounts);
     }
-
-    // @Test
-    // public void deleteAccountTest() {
-    //     Account account = new Account(
-    //         "123",
-    //         AccountType.CHECKING,
-    //         "4239434493",
-    //         "432434234",
-    //         "The Bank",
-    //         new BigDecimal(0),
-    //         new BigDecimal(0)
-    //     );
-
-    //     ServiceInstance serviceInstance = new TestServiceInstance();
-    //     when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
-
-    //     accountService.createAccount(account, "123");
-    //     accountService.deleteAccount(1, "123");
-
-    //     List<AccountDto> accounts = accountService.getAccountsByUserId("123");
-    //     List<AccountDto> expectedAccounts = new ArrayList<>();
-
-    //     assertEquals(expectedAccounts, accounts);
-    // }
 
 }
