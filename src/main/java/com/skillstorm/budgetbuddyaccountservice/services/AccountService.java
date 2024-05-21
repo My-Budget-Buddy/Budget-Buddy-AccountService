@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.ParameterizedTypeReference;
@@ -100,7 +99,7 @@ public class AccountService {
     // Get a list of transfers by userId from transaction microservice
     public List<Transaction> getTransactionsByUserId(String userId) {
         try {
-            ServiceInstance instance = loadBalancerClient.choose("transaction_service");
+            ServiceInstance instance = loadBalancerClient.choose("transaction-service");
             if (instance != null) {
                 String serviceUrl = instance.getUri().toString();
                 String fullUrl = serviceUrl + "/transactions/user/" + userId;
