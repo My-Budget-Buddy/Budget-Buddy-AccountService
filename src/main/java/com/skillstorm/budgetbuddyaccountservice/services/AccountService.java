@@ -211,4 +211,12 @@ public class AccountService {
         });
     }
 
+    // Delete Account based on userId
+    public void deleteAllAccounts(String userId) {
+        List<Account> accounts = accountRepository.findByUserId(userId);
+        for (Account account : accounts) {
+            accountRepository.deleteById(account.getId());
+        }
+    }
+
 }
