@@ -28,18 +28,16 @@ public class AccountService {
 
     private final LoadBalancerClient loadBalancerClient;
     private final RestClient restClient;
+    private final AccountRepository accountRepository;
+    private final AccountMapper accountMapper;
 
     @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private AccountMapper accountMapper;
-
-    @Autowired
-    public AccountService(LoadBalancerClient loadBalancerClient) {
+    public AccountService(LoadBalancerClient loadBalancerClient, AccountRepository accountRepository, AccountMapper accountMapper) {
         this.loadBalancerClient = loadBalancerClient;
         this.restClient = RestClient.builder()
                 .build();
+        this.accountRepository = accountRepository;
+        this.accountMapper = accountMapper;
     }
 
 
