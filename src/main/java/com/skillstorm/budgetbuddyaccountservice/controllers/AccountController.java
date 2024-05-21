@@ -73,4 +73,11 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    // Delete all accounts
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteAllAccounts(@PathVariable String userId) {
+        accountService.deleteAllAccounts(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }
