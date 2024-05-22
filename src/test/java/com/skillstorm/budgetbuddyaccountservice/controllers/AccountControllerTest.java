@@ -86,6 +86,18 @@ public class AccountControllerTest {
         verify(accountService, times(1)).getAccountByAccountIdAndUserId(userId, accountId);
     }
 
+    
+    @Test
+    public void testGetAccountByAccountIdAndUserIdNotFound() throws Exception {
+        String userId = "user123";
+        int accountId = 1;
+
+        when(accountService.getAccountByAccountIdAndUserId(userId, accountId)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/accounts/{userId}/{id}", userId, accountId))
+                .andExpect(status().isNotFound());
+    }
+
     @Test
     public void testCreateAccount() throws Exception {
         String userId = "user123";
@@ -146,6 +158,29 @@ public class AccountControllerTest {
     }
 
     @Test
+    public void testUpdateAccountNotFound() throws Exception {
+        String userId = "user123";
+        int accountId = 1;
+
+        Account accountDetails = new Account();
+        accountDetails.setType(Account.AccountType.CHECKING);
+        accountDetails.setAccountNumber("123456789");
+        accountDetails.setRoutingNumber("987654321");
+        accountDetails.setInstitution("Bank");
+        accountDetails.setInvestmentRate(BigDecimal.valueOf(0.05));
+        accountDetails.setStartingBalance(BigDecimal.valueOf(1000));
+
+        doReturn(0).when(accountService).updateAccount(eq(accountId), eq(userId), any(), anyString(), anyString(), anyString(), any(), any());
+
+        mockMvc.perform(put("/accounts/{userId}/{id}", userId, accountId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\":1,\"userId\":\"user123\",\"type\":\"CHECKING\",\"accountNumber\":\"123456789\"," +
+                        "\"routingNumber\":\"987654321\",\"institution\":\"Bank\",\"investmentRate\":0.05," +
+                        "\"startingBalance\":1000}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void testDeleteAccount() throws Exception {
         String userId = "user123";
         int accountId = 1;
@@ -155,5 +190,15 @@ public class AccountControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(accountService, times(1)).deleteAccount(accountId, userId);
+    }
+
+    @Test
+    public void testDeleteAllAccounts() throws Exception {
+        String userId = "user123";
+
+        doNothing().when(accountService).deleteAllAccounts(userId);
+
+        mockMvc.perform(delete("/accounts/{userId}", userId))
+                .andExpect(status().isNoContent());
     }
 }
