@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
+import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.services.AccountService;
 
@@ -112,7 +113,12 @@ public class AccountControllerTest {
         account.setInvestmentRate(BigDecimal.valueOf(0.05));
         account.setStartingBalance(BigDecimal.valueOf(1000));
 
-        when(accountService.createAccount(any(Account.class), eq(userId))).thenReturn(account);
+        AccountMapper mapper = new AccountMapper();
+        AccountDto accountDto = mapper.toDto(account);
+        accountDto.setAccountNumber("*****6789");
+        accountDto.setRoutingNumber("*****4321");
+        accountDto.setCurrentBalance(accountDto.getStartingBalance());
+        when(accountService.createAccount(any(Account.class), eq(userId))).thenReturn(accountDto);
 
         mockMvc.perform(post("/accounts/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)

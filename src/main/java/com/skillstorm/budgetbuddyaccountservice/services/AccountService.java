@@ -159,7 +159,7 @@ public class AccountService {
     }
 
     // Create an account based on userId
-    public Account createAccount(Account account, String userId) {
+    public AccountDto createAccount(Account account, String userId) {
         if (account.getAccountNumber() == null || account.getInstitution() == null || account.getType() == null) {
             List<String> errors = new ArrayList<>();
             if (account.getAccountNumber() == null) {
@@ -190,7 +190,8 @@ public class AccountService {
 
         account.setId(0); // Make sure the user cannot change an existing account on accident
         account.setUserId(userId);
-        return accountRepository.save(account);
+        Account newAccount = accountRepository.save(account);
+        return getAccountByAccountIdAndUserId(userId, newAccount.getId()).get();
     }
 
     // Update an account based on userId
