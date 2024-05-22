@@ -174,4 +174,99 @@ public class AccountTest {
                                 "Accounts with different institutions should not be considered equal");
         }
 
+        @Test
+        public void testEqualsSameValues() {
+                Account account1 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                                "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+                Account account2 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                                "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+
+                assertTrue(account1.equals(account2), "Accounts with the same values should be considered equal");
+                assertTrue(account2.equals(account1), "Accounts with the same values should be considered equal");
+        }
+
+        @Test
+        public void testEqualsDifferentStartingBalance() {
+                Account account1 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                                "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+                Account account2 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                                "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(2000));
+
+                assertFalse(account1.equals(account2),
+                                "Accounts with different starting balances should not be considered equal");
+                assertFalse(account2.equals(account1),
+                                "Accounts with different starting balances should not be considered equal");
+        }
+
+        @Test
+        public void testEqualsDifferentClass() {
+                Account account = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                                "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+                assertFalse(account.equals("not an Account object"),
+                                "An account should not be equal to a different class");
+        }
+
+        @Test
+        public void testEqualsDifferentId() {
+                Account account1 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                                "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+                Account account2 = new Account(2, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                                "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+
+                assertFalse(account1.equals(account2), "Accounts with different IDs should not be considered equal");
+                assertFalse(account2.equals(account1), "Accounts with different IDs should not be considered equal");
+        }
+
+        @Test
+        public void testEqualsDifferentInvestmentRate() {
+            Account account1 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                    "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+            Account account2 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                    "Bank A", BigDecimal.valueOf(0.1), BigDecimal.valueOf(1000));
+    
+            assertFalse(account1.equals(account2),
+                    "Accounts with different investment rates should not be considered equal");
+            assertFalse(account2.equals(account1),
+                    "Accounts with different investment rates should not be considered equal");
+        }
+    
+        @Test
+        public void testEqualsDifferentUserIdNull() {
+            Account account1 = new Account(1, null, Account.AccountType.CHECKING, "123456789", "987654321",
+                    "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+            Account account2 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                    "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+    
+            assertFalse(account1.equals(account2),
+                    "Accounts with different user IDs (one null) should not be considered equal");
+            assertFalse(account2.equals(account1),
+                    "Accounts with different user IDs (one null) should not be considered equal");
+        }
+
+        @Test
+        public void testEqualsDifferentStartingBalanceNull() {
+            Account account1 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                    "Bank A", BigDecimal.valueOf(0.05), null);
+            Account account2 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                    "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+    
+            assertFalse(account1.equals(account2),
+                    "Accounts with different starting balances (one null) should not be considered equal");
+            assertFalse(account2.equals(account1),
+                    "Accounts with different starting balances (one null) should not be considered equal");
+        }
+    
+        @Test
+        public void testEqualsDifferentAccountTypeNull() {
+            Account account1 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",
+                    "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+            Account account2 = new Account(1, "user1", null, "123456789", "987654321",
+                    "Bank A", BigDecimal.valueOf(0.05), BigDecimal.valueOf(1000));
+    
+            assertFalse(account1.equals(account2),
+                    "Accounts with different account types (one null) should not be considered equal");
+            assertFalse(account2.equals(account1),
+                    "Accounts with different account types (one null) should not be considered equal");
+        }
+
 }

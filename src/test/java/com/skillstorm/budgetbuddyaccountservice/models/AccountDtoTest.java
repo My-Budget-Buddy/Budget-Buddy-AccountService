@@ -29,6 +29,31 @@ public class AccountDtoTest {
         accountDto = accountMapper.toDto(account);
     }
 
+   
+    @Test
+    public void testSetAndGetType() {
+        accountDto.setType(AccountType.SAVINGS);
+        assertEquals(AccountType.SAVINGS, accountDto.getType(), "Type should be set and retrieved correctly");
+    }
+
+    @Test
+    public void testSetAndGetInstitution() {
+        accountDto.setInstitution("Bank B");
+        assertEquals("Bank B", accountDto.getInstitution(), "Institution should be set and retrieved correctly");
+    }
+
+    @Test
+    public void testSetAndGetInvestmentRate() {
+        accountDto.setInvestmentRate(BigDecimal.valueOf(0.1));
+        assertEquals(BigDecimal.valueOf(0.1), accountDto.getInvestmentRate(), "Investment rate should be set and retrieved correctly");
+    }
+
+    @Test
+    public void testSetAndGetStartingBalance() {
+        accountDto.setStartingBalance(BigDecimal.valueOf(2000));
+        assertEquals(BigDecimal.valueOf(2000), accountDto.getStartingBalance(), "Starting balance should be set and retrieved correctly");
+    }
+
     @Test
     public void testToAccount() {
         Account mappedAccount = accountMapper.toAccount(accountDto);
