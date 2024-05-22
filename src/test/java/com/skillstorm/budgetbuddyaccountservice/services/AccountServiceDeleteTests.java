@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -94,6 +95,11 @@ public class AccountServiceDeleteTests {
 
         ServiceInstance serviceInstance = new TestServiceInstance();
         when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
+        when(accountRepository.findById(any(int.class))).thenReturn(Optional.of(account));
+        when(accountRepository.save(any(Account.class))).thenReturn(account);
+
+        AccountMapper mapper = new AccountMapper();
+        when(accountMapper.toDto(any(Account.class))).thenReturn(mapper.toDto(account));
 
         accountService.createAccount(account, "123");
         accountService.deleteAccount(1, "123");

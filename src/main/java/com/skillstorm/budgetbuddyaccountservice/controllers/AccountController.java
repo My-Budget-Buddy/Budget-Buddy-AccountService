@@ -48,8 +48,8 @@ public class AccountController {
 
     // Create Account
     @PostMapping("/{userId}")
-    public ResponseEntity<Account> createAccount(@RequestBody Account account, @PathVariable String userId) {
-        Account createdAccount = accountService.createAccount(account, userId);
+    public ResponseEntity<AccountDto> createAccount(@RequestBody Account account, @PathVariable String userId) {
+        AccountDto createdAccount = accountService.createAccount(account, userId);
         return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
     }
 

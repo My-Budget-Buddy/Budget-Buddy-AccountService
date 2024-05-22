@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,6 +96,8 @@ public class AccountServiceCreateTests {
         List<Account> accounts = new ArrayList<>();
         accounts.add(account);
         when(accountRepository.findByUserId(any(String.class))).thenReturn(accounts);
+        when(accountRepository.findById(any(int.class))).thenReturn(Optional.of(account));
+        when(accountRepository.save(any(Account.class))).thenReturn(account);
 
         AccountMapper mapper = new AccountMapper();
         when(accountMapper.toDto(any(Account.class))).thenReturn(mapper.toDto(account));
