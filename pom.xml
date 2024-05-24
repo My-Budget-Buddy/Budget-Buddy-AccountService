@@ -64,6 +64,19 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Actuator Logging -->
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+		<!-- micrometer is a metric collection library that can integrate with spring boot actuator and supports CloudWatch -->
+<!--    <dependency>-->
+<!--    	<groupId>io.micrometer</groupId>-->
+<!--        <artifactId>micrometer-registry-cloudwatch</artifactId>-->
+<!--        <version>1.12.6</version>-->
+<!--    </dependency>-->
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

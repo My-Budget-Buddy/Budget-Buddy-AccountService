@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
+import com.skillstorm.budgetbuddyaccountservice.exceptions.IdMismatchException;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.NotEnoughInformationException;
 import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
@@ -65,36 +66,6 @@ public class AccountService {
         return accountDtos;
     }
 
-    // Mask account number
-    private String maskAccountNumber(String accountNumber) {
-        if (accountNumber == null || accountNumber.length() <= 4) {
-            return accountNumber;
-        }
-        int length = accountNumber.length();
-        StringBuilder masked = new StringBuilder();
-        for (int i = 0; i < length - 4; i++) {
-            masked.append('*');
-        }
-        masked.append(accountNumber.substring(length - 4));
-        return masked.toString();
-    }
-
-    // Mask routing number
-    private String maskRoutingNumber(String routingNumber){
-        if(routingNumber == null || routingNumber.length() <= 4){
-            return routingNumber;
-        }
-
-        int length = routingNumber.length();
-        StringBuilder masked = new StringBuilder();
-        for (int i = 0; i < length - 4; i++) {
-            masked.append('*');
-        }
-        masked.append(routingNumber.substring(length - 4));
-        return masked.toString();
-    }
-
-
     // Get a list of transfers by userId from transaction microservice
     public List<Transaction> getTransactionsByUserId(String userId) {
         try {
@@ -113,21 +84,6 @@ public class AccountService {
         } catch (HttpClientErrorException e) {
             return new ArrayList<>(0);
         }
-    }
-
-    // Calculate the current balance of each account
-    private BigDecimal calculateCurrentBalance(BigDecimal startingBalance, List<Transaction> transactions) {
-        BigDecimal balance = startingBalance;
-
-        for (Transaction transaction : transactions) {
-            if ("Income".equals(transaction.getCategory())) {
-                balance = balance.add(BigDecimal.valueOf(transaction.getAmount()));
-            } else {
-                balance = balance.subtract(BigDecimal.valueOf(transaction.getAmount()));
-            }
-        }
-
-        return balance;
     }
 
     // Get Accounts by accountId and userId
@@ -220,4 +176,56 @@ public class AccountService {
         }
     }
 
+    // This method checks to make sure that the user is retrieving or updating information that relates to their own account. This prevents a user with an ID of 1 from updating the data of a different user
+    public void compareHeaderIdWithRequestedDataId(String userId, String headerUserId) {
+
+        if (userId != String.valueOf(headerUserId)) {
+            throw new IdMismatchException();
+        }
+    }
+
+     // Calculate the current balance of each account
+     private BigDecimal calculateCurrentBalance(BigDecimal startingBalance, List<Transaction> transactions) {
+        BigDecimal balance = startingBalance;
+
+        for (Transaction transaction : transactions) {
+            if ("Income".equals(transaction.getCategory())) {
+                balance = balance.add(BigDecimal.valueOf(transaction.getAmount()));
+            } else {
+                balance = balance.subtract(BigDecimal.valueOf(transaction.getAmount()));
+            }
+        }
+
+        return balance;
+    }
+
+    
+    // Mask account number
+    private String maskAccountNumber(String accountNumber) {
+        if (accountNumber == null || accountNumber.length() <= 4) {
+            return accountNumber;
+        }
+        int length = accountNumber.length();
+        StringBuilder masked = new StringBuilder();
+        for (int i = 0; i < length - 4; i++) {
+            masked.append('*');
+        }
+        masked.append(accountNumber.substring(length - 4));
+        return masked.toString();
+    }
+
+    // Mask routing number
+    private String maskRoutingNumber(String routingNumber){
+        if(routingNumber == null || routingNumber.length() <= 4){
+            return routingNumber;
+        }
+
+        int length = routingNumber.length();
+        StringBuilder masked = new StringBuilder();
+        for (int i = 0; i < length - 4; i++) {
+            masked.append('*');
+        }
+        masked.append(routingNumber.substring(length - 4));
+        return masked.toString();
+    }
 }
