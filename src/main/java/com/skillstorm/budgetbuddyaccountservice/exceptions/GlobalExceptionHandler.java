@@ -13,4 +13,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.EXPECTATION_FAILED);
     }
 
+    @ExceptionHandler(IdMismatchException.class)
+    public ResponseEntity<String> idMismatchException(IdMismatchException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
 }
