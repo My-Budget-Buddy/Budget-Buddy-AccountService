@@ -13,6 +13,29 @@ spring:
     jpa:
         hibernate:
             ddl-auto: update
+logging:
+    level:
+        com:
+            skillstorm: debug
+
+#setting up the spring actuator endpoints that are exposed and what endpoint to access the metrics
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "*"  # endpoints: httpexchanges, metrics, env, beans, info, conditions, health, startup
+            base-path: /accounts/actuator
+    endpoint:
+        health:
+            show-details: always
+            
+    #pushes the actuator metrics to CloudWatch and CloudWatch will be able to monitor these metrics
+#    metrics:
+#        export:
+#            cloudwatch:
+#                enabled: true
+#                namespace: account-service
+#                step: 1m
 
 server:
     port: 8080
