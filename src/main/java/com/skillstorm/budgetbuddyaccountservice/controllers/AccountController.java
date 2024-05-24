@@ -29,7 +29,7 @@ public class AccountController {
 
     // Get Accounts by userId
     @GetMapping("/{userId}")
-    public ResponseEntity<List<AccountDto>> getAccountsByUserId(@PathVariable String userId, @RequestHeader String headerUserId) {
+    public ResponseEntity<List<AccountDto>> getAccountsByUserId(@PathVariable String userId, @RequestHeader(name = "User-ID") String headerUserId) {
 
         accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
 
@@ -39,7 +39,7 @@ public class AccountController {
 
     // Get Account by accountId and userId
     @GetMapping("/{userId}/{id}")
-    public ResponseEntity<AccountDto> getAccountByAccountIdAndUserId(@PathVariable String userId, @PathVariable int id, @RequestHeader String headerUserId) {
+    public ResponseEntity<AccountDto> getAccountByAccountIdAndUserId(@PathVariable String userId, @PathVariable int id, @RequestHeader(name = "User-ID") String headerUserId) {
 
         accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
 
@@ -53,7 +53,7 @@ public class AccountController {
 
     // Create Account
     @PostMapping("/{userId}")
-    public ResponseEntity<AccountDto> createAccount(@RequestBody Account account, @PathVariable String userId, @RequestHeader String headerUserId) {
+    public ResponseEntity<AccountDto> createAccount(@RequestBody Account account, @PathVariable String userId, @RequestHeader(name = "User-ID") String headerUserId) {
 
         accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
 
@@ -64,7 +64,7 @@ public class AccountController {
     // Update Account
     @PutMapping("/{userId}/{id}")
     public ResponseEntity<Integer> updateAccount(@PathVariable String userId, @PathVariable int id,
-            @RequestBody Account accountDetails, @RequestHeader String headerUserId) {
+            @RequestBody Account accountDetails, @RequestHeader(name = "User-ID") String headerUserId) {
 
                 accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
 
@@ -81,7 +81,7 @@ public class AccountController {
 
     // Delete Account
     @DeleteMapping("/{userId}/{id}")
-    public ResponseEntity<Void> deleteAccount(@PathVariable String userId, @PathVariable int id, @RequestHeader String headerUserId) {
+    public ResponseEntity<Void> deleteAccount(@PathVariable String userId, @PathVariable int id, @RequestHeader(name = "User-ID") String headerUserId) {
 
         accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
 
@@ -91,7 +91,7 @@ public class AccountController {
 
     // Delete all accounts
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteAllAccounts(@PathVariable String userId, @RequestHeader String headerUserId) {
+    public ResponseEntity<Void> deleteAllAccounts(@PathVariable String userId, @RequestHeader(name = "User-ID") String headerUserId) {
 
         accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
 
