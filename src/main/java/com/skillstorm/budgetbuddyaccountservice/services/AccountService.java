@@ -72,7 +72,7 @@ public class AccountService {
             ServiceInstance instance = loadBalancerClient.choose("transaction-service");
             if (instance != null) {
                 String serviceUrl = instance.getUri().toString();
-                String fullUrl = serviceUrl + "/transactions/user/" + userId;
+                String fullUrl = serviceUrl + "/transactionsPrivate/user/" + userId;
 
                 return restClient.get()
                                  .uri(fullUrl)
