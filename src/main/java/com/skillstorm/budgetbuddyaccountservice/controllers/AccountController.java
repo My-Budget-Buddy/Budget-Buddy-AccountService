@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,9 +30,9 @@ public class AccountController {
 
     // Get Accounts by userId
     @GetMapping("/{userId}")
-    public ResponseEntity<List<AccountDto>> getAccountsByUserId(@PathVariable String userId, @RequestHeader(name = "User-ID") String headerUserId) {
+    public ResponseEntity<List<AccountDto>> getAccountsByUserId(@PathVariable String userId, @RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
+        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
 
         List<AccountDto> accounts = accountService.getAccountsByUserId(userId);
         return new ResponseEntity<>(accounts, HttpStatus.OK);
@@ -39,9 +40,9 @@ public class AccountController {
 
     // Get Account by accountId and userId
     @GetMapping("/{userId}/{id}")
-    public ResponseEntity<AccountDto> getAccountByAccountIdAndUserId(@PathVariable String userId, @PathVariable int id, @RequestHeader(name = "User-ID") String headerUserId) {
+    public ResponseEntity<AccountDto> getAccountByAccountIdAndUserId(@PathVariable String userId, @PathVariable int id, @RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
+        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
 
         Optional<AccountDto> account = accountService.getAccountByAccountIdAndUserId(userId, id);
         if (account.isPresent()) {
@@ -53,9 +54,9 @@ public class AccountController {
 
     // Create Account
     @PostMapping("/{userId}")
-    public ResponseEntity<AccountDto> createAccount(@RequestBody Account account, @PathVariable String userId, @RequestHeader(name = "User-ID") String headerUserId) {
+    public ResponseEntity<AccountDto> createAccount(@RequestBody Account account, @PathVariable String userId, @RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
+        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
 
         AccountDto createdAccount = accountService.createAccount(account, userId);
         return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
@@ -64,9 +65,9 @@ public class AccountController {
     // Update Account
     @PutMapping("/{userId}/{id}")
     public ResponseEntity<Integer> updateAccount(@PathVariable String userId, @PathVariable int id,
-            @RequestBody Account accountDetails, @RequestHeader(name = "User-ID") String headerUserId) {
+            @RequestBody Account accountDetails, @RequestHeader HttpHeaders httpHeaders) {
 
-                accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
+                accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
 
         int updated = accountService.updateAccount(id, userId, accountDetails.getType(),
                 accountDetails.getAccountNumber(), accountDetails.getRoutingNumber(),
@@ -81,9 +82,9 @@ public class AccountController {
 
     // Delete Account
     @DeleteMapping("/{userId}/{id}")
-    public ResponseEntity<Void> deleteAccount(@PathVariable String userId, @PathVariable int id, @RequestHeader(name = "User-ID") String headerUserId) {
+    public ResponseEntity<Void> deleteAccount(@PathVariable String userId, @PathVariable int id, @RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
+        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
 
         accountService.deleteAccount(id, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -91,9 +92,9 @@ public class AccountController {
 
     // Delete all accounts
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteAllAccounts(@PathVariable String userId, @RequestHeader(name = "User-ID") String headerUserId) {
+    public ResponseEntity<Void> deleteAllAccounts(@PathVariable String userId, @RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, headerUserId);
+        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
 
         accountService.deleteAllAccounts(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

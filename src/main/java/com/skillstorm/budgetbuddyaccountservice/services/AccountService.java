@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -177,9 +178,9 @@ public class AccountService {
     }
 
     // This method checks to make sure that the user is retrieving or updating information that relates to their own account. This prevents a user with an ID of 1 from updating the data of a different user
-    public void compareHeaderIdWithRequestedDataId(String userId, String headerUserId) {
-
-        if (userId != String.valueOf(headerUserId)) {
+    public void compareHeaderIdWithRequestedDataId(String userId, HttpHeaders httpHeaders) {
+        String headerUserId = httpHeaders.getFirst("User-ID");
+        if (userId == null || headerUserId == null || !userId.equals(headerUserId)) {
             throw new IdMismatchException();
         }
     }
