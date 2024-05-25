@@ -29,22 +29,31 @@ public class AccountController {
     private AccountService accountService;
 
     // Get Accounts by userId
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<AccountDto>> getAccountsByUserId(@PathVariable String userId, @RequestHeader HttpHeaders httpHeaders) {
+    @GetMapping
+    public ResponseEntity<List<AccountDto>> getAccountsByUserId(@RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
+        accountService.validateRequestWithHeaders(httpHeaders);
+
+        // Get the user ID from headers, this shouldn't be null anymore since we
+        // validate the request above
+        // another option is to have validateRequestWithHeaders return the userID
+        // string.
+        String userId = httpHeaders.getFirst("User-ID");
 
         List<AccountDto> accounts = accountService.getAccountsByUserId(userId);
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
-    // Get Account by accountId and userId
-    @GetMapping("/{userId}/{id}")
-    public ResponseEntity<AccountDto> getAccountByAccountIdAndUserId(@PathVariable String userId, @PathVariable int id, @RequestHeader HttpHeaders httpHeaders) {
+    // Get individual account by ID
+    @GetMapping("/{accountId}")
+    public ResponseEntity<AccountDto> getAccountByAccountIdAndUserId(@PathVariable int accountId,
+            @RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
+        accountService.validateRequestWithHeaders(httpHeaders);
 
-        Optional<AccountDto> account = accountService.getAccountByAccountIdAndUserId(userId, id);
+        String userId = httpHeaders.getFirst("User-ID");
+
+        Optional<AccountDto> account = accountService.getAccountByAccountIdAndUserId(userId, accountId);
         if (account.isPresent()) {
             return new ResponseEntity<>(account.get(), HttpStatus.OK);
         } else {
@@ -53,23 +62,28 @@ public class AccountController {
     }
 
     // Create Account
-    @PostMapping("/{userId}")
-    public ResponseEntity<AccountDto> createAccount(@RequestBody Account account, @PathVariable String userId, @RequestHeader HttpHeaders httpHeaders) {
+    @PostMapping
+    public ResponseEntity<AccountDto> createAccount(@RequestBody Account account,
+            @RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
+        accountService.validateRequestWithHeaders(httpHeaders);
+
+        String userId = httpHeaders.getFirst("User-ID");
 
         AccountDto createdAccount = accountService.createAccount(account, userId);
         return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
     }
 
     // Update Account
-    @PutMapping("/{userId}/{id}")
-    public ResponseEntity<Integer> updateAccount(@PathVariable String userId, @PathVariable int id,
+    @PutMapping("/{accountId}")
+    public ResponseEntity<Integer> updateAccount(@PathVariable int accountId,
             @RequestBody Account accountDetails, @RequestHeader HttpHeaders httpHeaders) {
 
-                accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
+        accountService.validateRequestWithHeaders(httpHeaders);
 
-        int updated = accountService.updateAccount(id, userId, accountDetails.getType(),
+        String userId = httpHeaders.getFirst("User-ID");
+
+        int updated = accountService.updateAccount(accountId, userId, accountDetails.getType(),
                 accountDetails.getAccountNumber(), accountDetails.getRoutingNumber(),
                 accountDetails.getInstitution(), accountDetails.getInvestmentRate(),
                 accountDetails.getStartingBalance());
@@ -81,20 +95,25 @@ public class AccountController {
     }
 
     // Delete Account
-    @DeleteMapping("/{userId}/{id}")
-    public ResponseEntity<Void> deleteAccount(@PathVariable String userId, @PathVariable int id, @RequestHeader HttpHeaders httpHeaders) {
+    @DeleteMapping("/{accountId}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable int accountId,
+            @RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
+        accountService.validateRequestWithHeaders(httpHeaders);
 
-        accountService.deleteAccount(id, userId);
+        String userId = httpHeaders.getFirst("User-ID");
+
+        accountService.deleteAccount(accountId, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // Delete all accounts
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteAllAccounts(@PathVariable String userId, @RequestHeader HttpHeaders httpHeaders) {
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllAccounts(@RequestHeader HttpHeaders httpHeaders) {
 
-        accountService.compareHeaderIdWithRequestedDataId(userId, httpHeaders);
+        accountService.validateRequestWithHeaders(httpHeaders);
+
+        String userId = httpHeaders.getFirst("User-ID");
 
         accountService.deleteAllAccounts(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
