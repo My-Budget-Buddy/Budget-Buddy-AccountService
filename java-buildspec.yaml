@@ -13,7 +13,6 @@ phases:
       - mv kubectl /usr/local/bin/
       - curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz"
       - tar -xzf eksctl_Linux_amd64.tar.gz -C /usr/local/bin && rm eksctl_Linux_amd64.tar.gz
-      - eksctl utils write-kubeconfig --cluster=$CLUSTER_NAME
       - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - REPOSITORY_NAME=account-services
   build:
@@ -29,6 +28,7 @@ phases:
       - docker build -t $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$REPOSITORY_NAME .
       - docker push $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$REPOSITORY_NAME
       #- kubectl apply -f manifest.yaml
+      - eksctl utils write-kubeconfig --cluster=$CLUSTER_NAME
       - kubectl rollout restart deployment $REPOSITORY_NAME
       - echo Finished the post_build phase.
 
