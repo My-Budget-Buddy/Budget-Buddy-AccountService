@@ -92,7 +92,7 @@ The Account Service provides endpoints for managing user accounts. You can acces
   ]
     ```
   
- #### Get Individual Account by ID**
+ #### Get Individual Account by ID
 - **URL:** `GET /accounts/{accountId}`
 - **Description:** Retrieve an account by the `accountId`.
 - **Response:**
