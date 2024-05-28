@@ -11,7 +11,7 @@ phases:
       - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
-      - aws eks update-kubeconfig --name $CLUSTER_NAME
+      - aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-1
       - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - REPOSITORY_NAME=account-services
   build:
