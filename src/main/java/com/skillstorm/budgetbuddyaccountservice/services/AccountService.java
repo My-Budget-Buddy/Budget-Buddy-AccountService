@@ -14,6 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.IdMismatchException;
