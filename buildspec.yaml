@@ -29,6 +29,6 @@ phases:
       - docker push $ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$REPOSITORY_NAME
       #- kubectl apply -f manifest.yaml
       - eksctl utils write-kubeconfig --cluster=$CLUSTER_NAME
-      - aws sts get-caller-identity && kubectl rollout restart deployment $REPOSITORY_NAME
+      - kubectl rollout restart deployment $REPOSITORY_NAME
       - echo Finished the post_build phase.
 
