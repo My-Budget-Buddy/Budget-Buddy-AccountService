@@ -46,3 +46,13 @@ eureka:
             defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
     instance:
         leaseRenewalIntervalInSeconds: 30
+
+# creating the rabbitmq fanout exchange
+exchanges:
+    fanout: delete-user
+
+queues:
+    fanout: deleteUserQueue                    # name of the queue
+
+# creating the routing key for the exchange
+routing-key: key1234

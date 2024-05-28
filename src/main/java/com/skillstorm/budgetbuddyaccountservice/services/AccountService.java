@@ -229,4 +229,10 @@ public class AccountService {
         masked.append(routingNumber.substring(length - 4));
         return masked.toString();
     }
+
+    @Transactional
+    @RabbitListener(queues = "${queues.fanout}")
+    public void receiveDeleteAllByUserId(@Payload int userId) {
+      deleteAllAccounts(String.valueOf(userId));
+    }
 }
