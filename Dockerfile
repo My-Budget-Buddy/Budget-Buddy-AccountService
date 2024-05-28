@@ -1,7 +1,7 @@
 FROM alpine:latest as build
 WORKDIR /app
 COPY . /app
-RUN apk update && apk upgrade && apk add openjdk17-jdk maven && mvn clean install -DskipTests
+RUN apk update && apk upgrade && apk add openjdk17-jdk maven && mvn clean package -DskipTests
 
 FROM alpine:latest
 RUN apk update && apk upgrade && apk add openjdk17-jre
