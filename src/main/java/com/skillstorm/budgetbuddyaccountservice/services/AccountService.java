@@ -230,7 +230,6 @@ public class AccountService {
         return masked.toString();
     }
 
-    @Transactional
     @RabbitListener(queues = "${queues.fanout}")
     public void receiveDeleteAllByUserId(@Payload int userId) {
       deleteAllAccounts(String.valueOf(userId));
