@@ -141,7 +141,7 @@ The Account Service provides endpoints for managing user accounts. You can acces
     ```
 #### Update Account
 
-- **URL:** PUT /accounts/{accountId}
+- **URL:** `PUT /accounts/{accountId}`
 - **Description:** Update an existing account.
 - **Request:**
     ```javascript
@@ -157,12 +157,12 @@ The Account Service provides endpoints for managing user accounts. You can acces
 - **Response:** 200 OK
 
 #### Delete Account
-- **URL:** DELETE /accounts/{accountId}
+- **URL:** `DELETE /accounts/{accountId}`
 - **Description:** Delete an account by its ID.
 - **Response:** 204 NO CONTENT
 
 #### Delete All Accounts
-- **URL:** DELETE /accounts
+- **URL:** `DELETE /accounts`
 - **Description:** Delete all accounts for a user.
 - **Response:** 204 NO CONTENT
 
