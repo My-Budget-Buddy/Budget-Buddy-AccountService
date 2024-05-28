@@ -18,11 +18,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(InvalidGatewaySecretException.class)
-    public ResponseEntity<String> invalidGatewayException(InvalidGatewaySecretException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-    }
-
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<String> accountNotFoundException(AccountNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);

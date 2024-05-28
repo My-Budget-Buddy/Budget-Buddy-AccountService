@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.ParameterizedTypeReference;
@@ -19,7 +18,6 @@ import org.springframework.web.client.RestClient;
 import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.AccountNotFoundException;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.IdMismatchException;
-import com.skillstorm.budgetbuddyaccountservice.exceptions.InvalidGatewaySecretException;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.NotEnoughInformationException;
 import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
@@ -28,12 +26,6 @@ import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
 
 @Service
 public class AccountService {
-
-    // Another way to further secure requests is to share a secret between services
-    // and the gateway each service on each request will make sure the secret sent
-    // in the request headers, match the shared secret
-    @Value("${GATEWAY-SECRET}")
-    private String gatewaySecret;
 
     private final LoadBalancerClient loadBalancerClient;
     private final RestClient restClient;
@@ -198,13 +190,8 @@ public class AccountService {
     // url path
     public void validateRequestWithHeaders(HttpHeaders httpHeaders) {
         String headerUserId = httpHeaders.getFirst("User-ID");
-        String headerGatewaySecret = httpHeaders.getFirst("GATEWAY-SECRET");
         if (headerUserId == null) {
             throw new IdMismatchException();
-        }
-
-        if (headerGatewaySecret == null || !headerGatewaySecret.equals(gatewaySecret)) {
-            throw new InvalidGatewaySecretException();
         }
     }
 

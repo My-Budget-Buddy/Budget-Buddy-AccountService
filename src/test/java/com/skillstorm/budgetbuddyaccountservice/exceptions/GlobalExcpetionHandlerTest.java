@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 public class GlobalExcpetionHandlerTest {
@@ -45,23 +44,6 @@ public class GlobalExcpetionHandlerTest {
     }
 
     @Test
-    public void testInvalidGatewayException() {
-        InvalidGatewaySecretException exception = new InvalidGatewaySecretException();
-
-        ResponseEntity<String> expectedResponse = new ResponseEntity<>(
-                "Invalid gateway secret.",
-                HttpStatus.FORBIDDEN);
-
-        ResponseEntity<String> actualResponse = globalExceptionHandler.invalidGatewayException(exception);
-
-        String expectedMessage = expectedResponse.getBody();
-        String actualMessage = actualResponse.getBody();
-
-        assertEquals(expectedMessage, actualMessage, "Response body should match the expected message");
-        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode(), "HTTP status code should match");
-    }
-
-    @Test
     public void testAccountNotFoundException() {
         String errorMessage = "Account not found.";
         AccountNotFoundException exception = new AccountNotFoundException(errorMessage);
@@ -82,7 +64,7 @@ public class GlobalExcpetionHandlerTest {
     @Test
     public void testConstructorWithMessage() {
         String errorMessage = "Custom error message";
-        InvalidGatewaySecretException exception = new InvalidGatewaySecretException(errorMessage);
+        AccountNotFoundException exception = new AccountNotFoundException(errorMessage);
 
         assertEquals(errorMessage, exception.getMessage(), "Error message should match the one provided in the constructor");
     }
