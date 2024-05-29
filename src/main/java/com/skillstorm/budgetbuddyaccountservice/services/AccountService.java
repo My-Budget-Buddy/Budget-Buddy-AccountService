@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
+import com.skillstorm.budgetbuddyaccountservice.exceptions.AccountNotFoundException;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.IdMismatchException;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.NotEnoughInformationException;
 import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
@@ -40,7 +41,6 @@ public class AccountService {
         this.accountMapper = accountMapper;
     }
 
-
     // Get Accounts by userId
     public List<AccountDto> getAccountsByUserId(String userId) {
         List<Account> accounts = accountRepository.findByUserId(userId);
@@ -49,10 +49,10 @@ public class AccountService {
         List<Transaction> transactions = getTransactionsByUserId(userId);
 
         for (Account account : accounts) {
-        
+
             List<Transaction> accountTransactions = transactions.stream()
-                .filter(transaction -> transaction.getAccountId() == (account.getId()))
-                .collect(Collectors.toList());
+                    .filter(transaction -> transaction.getAccountId() == (account.getId()))
+                    .collect(Collectors.toList());
 
             BigDecimal currentBalance = calculateCurrentBalance(account.getStartingBalance(), accountTransactions);
 
@@ -76,9 +76,9 @@ public class AccountService {
                 String fullUrl = serviceUrl + "/transactionsPrivate/user/" + userId;
 
                 return restClient.get()
-                                 .uri(fullUrl)
-                                 .retrieve()
-                                 .body(new ParameterizedTypeReference<List<Transaction>>() {});
+                        .uri(fullUrl)
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<Transaction>>() {});
             } else {
                 throw new IllegalStateException("No instances available for transaction_service");
             }
@@ -94,15 +94,15 @@ public class AccountService {
             Account account = accountOptional.get();
             List<Transaction> allTransactions = getTransactionsByUserId(userId);
             List<Transaction> accountTransactions = filterTransactionsByAccountId(allTransactions, account.getId());
-    
+
             BigDecimal currentBalance = calculateCurrentBalance(account.getStartingBalance(), accountTransactions);
-    
+
             AccountDto accountDto = accountMapper.toDto(account);
             accountDto.setCurrentBalance(currentBalance);
 
             accountDto.setAccountNumber(maskAccountNumber(account.getAccountNumber()));
             accountDto.setRoutingNumber(maskRoutingNumber(account.getRoutingNumber()));
-    
+
             return Optional.of(accountDto);
         }
         return Optional.empty();
@@ -111,8 +111,8 @@ public class AccountService {
     // Filter transfers of a user for a specific account
     private List<Transaction> filterTransactionsByAccountId(List<Transaction> transactions, int accountId) {
         return transactions.stream()
-                           .filter(transaction -> transaction.getAccountId() == accountId)
-                           .collect(Collectors.toList());
+                .filter(transaction -> transaction.getAccountId() == accountId)
+                .collect(Collectors.toList());
     }
 
     // Create an account based on userId
@@ -155,12 +155,19 @@ public class AccountService {
     public int updateAccount(int id, String userId, Account.AccountType type, String accountNumber,
             String routingNumber, String institution, BigDecimal investmentRate,
             BigDecimal startingBalance) {
+
+        // will throw 404 if acc doesn't exist, or 403 if account doesn't belong to this user
+        verifyAccountOwnership(userId, id);
+        
         return accountRepository.updateAccount(id, userId, type, accountNumber, routingNumber, institution,
                 investmentRate, startingBalance);
     }
 
     // Delete Account based on userId
     public void deleteAccount(int id, String userId) {
+        // will throw 404 if acc doesn't exist, or 403 if account doesn't belong to this user
+        verifyAccountOwnership(userId, id);
+        
         Optional<Account> account = accountRepository.findById(id);
         account.ifPresent(a -> {
             if (a.getUserId().equals(userId)) {
@@ -177,16 +184,19 @@ public class AccountService {
         }
     }
 
-    // This method checks to make sure that the user is retrieving or updating information that relates to their own account. This prevents a user with an ID of 1 from updating the data of a different user
-    public void compareHeaderIdWithRequestedDataId(String userId, HttpHeaders httpHeaders) {
+    // Since we are removing the need for a user id in the URL path, we can just
+    // fetch the data for the user from the header
+    // this is no less secure than comparing the header with the given id from the
+    // url path
+    public void validateRequestWithHeaders(HttpHeaders httpHeaders) {
         String headerUserId = httpHeaders.getFirst("User-ID");
-        if (userId == null || headerUserId == null || !userId.equals(headerUserId)) {
+        if (headerUserId == null) {
             throw new IdMismatchException();
         }
     }
 
-     // Calculate the current balance of each account
-     private BigDecimal calculateCurrentBalance(BigDecimal startingBalance, List<Transaction> transactions) {
+    // Calculate the current balance of each account
+    private BigDecimal calculateCurrentBalance(BigDecimal startingBalance, List<Transaction> transactions) {
         BigDecimal balance = startingBalance;
 
         for (Transaction transaction : transactions) {
@@ -200,7 +210,6 @@ public class AccountService {
         return balance;
     }
 
-    
     // Mask account number
     private String maskAccountNumber(String accountNumber) {
         if (accountNumber == null || accountNumber.length() <= 4) {
@@ -216,8 +225,8 @@ public class AccountService {
     }
 
     // Mask routing number
-    private String maskRoutingNumber(String routingNumber){
-        if(routingNumber == null || routingNumber.length() <= 4){
+    private String maskRoutingNumber(String routingNumber) {
+        if (routingNumber == null || routingNumber.length() <= 4) {
             return routingNumber;
         }
 
@@ -228,5 +237,26 @@ public class AccountService {
         }
         masked.append(routingNumber.substring(length - 4));
         return masked.toString();
+    }
+
+    /**
+     * Verify that the account exists, and belongs to the requesting user. Throws 404 if account
+     * doesn't exist, or 403 if the account doesn't belong to the user, or cleanly exits if ok.
+     * @param requesterId The user making the request, obtained from `USER-ID` header
+     * @param accountId The account being modified/deleted
+     */
+    private void verifyAccountOwnership(String requesterId, int accountId) {
+        // add a check to make sure the account belongs to this user
+        Optional<Account> existingAccount = accountRepository.findById(accountId);
+
+        // first check if the account exists
+        if (!existingAccount.isPresent()) {
+            throw new AccountNotFoundException("Account with ID " + accountId + " not found.");
+        }
+
+        // check if account userId matches given userId
+        if (!existingAccount.get().getUserId().equals(requesterId)) {
+            throw new IdMismatchException();
+        }
     }
 }
