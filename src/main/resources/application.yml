@@ -13,6 +13,10 @@ spring:
     jpa:
         hibernate:
             ddl-auto: update
+    
+    rabbitmq:
+      host: rabbitmq
+
 logging:
     level:
         com:
