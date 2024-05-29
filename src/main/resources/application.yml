@@ -56,7 +56,7 @@ exchanges:
     fanout: delete-user
 
 queues:
-    fanout: deleteUserQueue                    # name of the queue
+    fanout: deleteUserAccountQueue                    # name of the queue
 
 # creating the routing key for the exchange
 routing-key: key1234
