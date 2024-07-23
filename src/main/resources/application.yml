@@ -1,35 +1,35 @@
 spring:
-    datasource:
-        url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/accounts}
-        username: ${DATABASE_USERNAME:postgres}
-        password: ${DATABASE_PASSWORD:postgres}
-        driverClassName: org.postgresql.Driver
-    output:
-        ansi:
-            enabled: ALWAYS
-    application:
-        name: account-service
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/accounts}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driverClassName: org.postgresql.Driver
+  output:
+    ansi:
+      enabled: ALWAYS
+  application:
+    name: account-service
 
-    jpa:
-        hibernate:
-            ddl-auto: update
+  jpa:
+    hibernate:
+      ddl-auto: update
 logging:
-    level:
-        com:
-            skillstorm: debug
+  level:
+    com:
+      skillstorm: debug
 
 #setting up the spring actuator endpoints that are exposed and what endpoint to access the metrics
 management:
-    endpoints:
-        web:
-            exposure:
-                include: "*"  # endpoints: httpexchanges, metrics, env, beans, info, conditions, health, startup
-            base-path: /accounts/actuator
-    endpoint:
-        health:
-            show-details: always
-            
-    #pushes the actuator metrics to CloudWatch and CloudWatch will be able to monitor these metrics
+  endpoints:
+    web:
+      exposure:
+        include: "*" # endpoints: httpexchanges, metrics, env, beans, info, conditions, health, startup
+      base-path: /accounts/actuator
+  endpoint:
+    health:
+      show-details: always
+
+  #pushes the actuator metrics to CloudWatch and CloudWatch will be able to monitor these metrics
 #    metrics:
 #        export:
 #            cloudwatch:
@@ -38,12 +38,20 @@ management:
 #                step: 1m
 
 server:
-    port: 8080
+  port: 8080
 
 eureka:
-    client:
-        service-url:
-            defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
-    instance:
-        leaseRenewalIntervalInSeconds: 30
-        hostname: ${AWS_HOSTNAME:localhost}
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    leaseRenewalIntervalInSeconds: 30
+    hostname: ${AWS_HOSTNAME:localhost}
+
+exchanges:
+  direct: direct-exchange
+
+queues:
+  budget:
+    request: account-request
+    response: account-response
