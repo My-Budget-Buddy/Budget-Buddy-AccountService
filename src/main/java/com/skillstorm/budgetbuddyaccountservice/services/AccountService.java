@@ -4,13 +4,22 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -33,7 +42,13 @@ public class AccountService {
     private final AccountMapper accountMapper;
 
     @Autowired
-    public AccountService(LoadBalancerClient loadBalancerClient, AccountRepository accountRepository, AccountMapper accountMapper) {
+    RabbitTemplate rabbitTemplate;
+
+    final ConcurrentMap<String, CompletableFuture<List<Transaction>>> correlationMap = new ConcurrentHashMap<>();
+
+    @Autowired
+    public AccountService(LoadBalancerClient loadBalancerClient, AccountRepository accountRepository,
+            AccountMapper accountMapper) {
         this.loadBalancerClient = loadBalancerClient;
         this.restClient = RestClient.builder()
                 .build();
@@ -69,21 +84,43 @@ public class AccountService {
 
     // Get a list of transfers by userId from transaction microservice
     public List<Transaction> getTransactionsByUserId(String userId) {
-        try {
-            ServiceInstance instance = loadBalancerClient.choose("transaction-service");
-            if (instance != null) {
-                String serviceUrl = instance.getUri().toString();
-                String fullUrl = serviceUrl + "/transactionsPrivate/user/" + userId;
+        // Generate a correlationId so the queue can map the correct response and store
+        // it as a future
+        String correlationId = UUID.randomUUID().toString();
+        CompletableFuture<List<Transaction>> transactionsFuture = new CompletableFuture<>();
+        correlationMap.put(correlationId, transactionsFuture);
 
-                return restClient.get()
-                        .uri(fullUrl)
-                        .retrieve()
-                        .body(new ParameterizedTypeReference<List<Transaction>>() {});
-            } else {
-                throw new IllegalStateException("No instances available for transaction_service");
-            }
-        } catch (HttpClientErrorException e) {
-            return new ArrayList<>(0);
+        // Send the request to the Transactions-Service using RabbitMq:
+        rabbitTemplate.convertAndSend("account-request", userId, message -> {
+            message.getMessageProperties().setCorrelationId(correlationId);
+            message.getMessageProperties().setReplyTo("account-response");
+            return message;
+        });
+
+        try {
+            return transactionsFuture.get();
+        } catch (Exception e) {
+            throw new RuntimeException("Error waiting for transactions response", e);
+        } finally {
+            // Once the request has completed, we can remove it from our list of requests
+            correlationMap.remove(correlationId);
+        }
+    }
+
+    /**
+     *
+     * @param transactions  the List of the user's transactions received from
+     *                      Transaction-Service
+     * @param correlationId the id for the request
+     */
+    @RabbitListener(queues = "account-response")
+    public void handleTransactionsResponse(@Payload List<Transaction> transactions,
+            @Header(AmqpHeaders.CORRELATION_ID) String correlationId) {
+        // Find the future that was stored in the our correlation map that is relevant
+        // to the request and use it to store our response
+        CompletableFuture<List<Transaction>> transactionsFuture = correlationMap.remove(correlationId);
+        if (transactionsFuture != null) {
+            transactionsFuture.complete(transactions);
         }
     }
 
@@ -156,18 +193,20 @@ public class AccountService {
             String routingNumber, String institution, BigDecimal investmentRate,
             BigDecimal startingBalance) {
 
-        // will throw 404 if acc doesn't exist, or 403 if account doesn't belong to this user
+        // will throw 404 if acc doesn't exist, or 403 if account doesn't belong to this
+        // user
         verifyAccountOwnership(userId, id);
-        
+
         return accountRepository.updateAccount(id, userId, type, accountNumber, routingNumber, institution,
                 investmentRate, startingBalance);
     }
 
     // Delete Account based on userId
     public void deleteAccount(int id, String userId) {
-        // will throw 404 if acc doesn't exist, or 403 if account doesn't belong to this user
+        // will throw 404 if acc doesn't exist, or 403 if account doesn't belong to this
+        // user
         verifyAccountOwnership(userId, id);
-        
+
         Optional<Account> account = accountRepository.findById(id);
         account.ifPresent(a -> {
             if (a.getUserId().equals(userId)) {
@@ -240,10 +279,14 @@ public class AccountService {
     }
 
     /**
-     * Verify that the account exists, and belongs to the requesting user. Throws 404 if account
-     * doesn't exist, or 403 if the account doesn't belong to the user, or cleanly exits if ok.
-     * @param requesterId The user making the request, obtained from `USER-ID` header
-     * @param accountId The account being modified/deleted
+     * Verify that the account exists, and belongs to the requesting user. Throws
+     * 404 if account
+     * doesn't exist, or 403 if the account doesn't belong to the user, or cleanly
+     * exits if ok.
+     * 
+     * @param requesterId The user making the request, obtained from `USER-ID`
+     *                    header
+     * @param accountId   The account being modified/deleted
      */
     private void verifyAccountOwnership(String requesterId, int accountId) {
         // add a check to make sure the account belongs to this user
