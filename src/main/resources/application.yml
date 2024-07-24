@@ -52,6 +52,6 @@ exchanges:
   direct: direct-exchange
 
 queues:
-  budget:
+  account:
     request: account-request
     response: account-response
