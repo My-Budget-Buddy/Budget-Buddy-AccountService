@@ -41,10 +41,9 @@ public class AccountService {
 
     @Autowired
     public AccountService(AccountRepository accountRepository,
-            AccountMapper accountMapper, RabbitTemplate rabbitTemplate) {
+            AccountMapper accountMapper) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
-        this.rabbitTemplate = rabbitTemplate;
     }
 
     // Get Accounts by userId
