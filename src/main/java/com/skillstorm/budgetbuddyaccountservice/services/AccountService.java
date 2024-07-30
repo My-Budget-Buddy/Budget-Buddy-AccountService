@@ -14,15 +14,10 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
 
 import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
 import com.skillstorm.budgetbuddyaccountservice.exceptions.AccountNotFoundException;
@@ -36,8 +31,6 @@ import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
 @Service
 public class AccountService {
 
-    private final LoadBalancerClient loadBalancerClient;
-    private final RestClient restClient;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
@@ -47,11 +40,8 @@ public class AccountService {
     final ConcurrentMap<String, CompletableFuture<List<Transaction>>> correlationMap = new ConcurrentHashMap<>();
 
     @Autowired
-    public AccountService(LoadBalancerClient loadBalancerClient, AccountRepository accountRepository,
+    public AccountService(AccountRepository accountRepository,
             AccountMapper accountMapper) {
-        this.loadBalancerClient = loadBalancerClient;
-        this.restClient = RestClient.builder()
-                .build();
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
     }
