@@ -1,4 +1,4 @@
-package com.skillstorm.budgetbuddyaccountservice.services;
+package com.skillstorm.budgetbuddyaccountservice.services.Unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +24,7 @@ import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.models.Account.AccountType;
 import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
+import com.skillstorm.budgetbuddyaccountservice.services.AccountService;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceUpdateTests {
