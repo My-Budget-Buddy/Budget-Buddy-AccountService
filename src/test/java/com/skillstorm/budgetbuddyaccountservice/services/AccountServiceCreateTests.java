@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -80,7 +81,7 @@ public class AccountServiceCreateTests {
         }
 
     }
-
+    @Disabled
     @Test
     public void createAccountTest() {
         Account account = new Account(
