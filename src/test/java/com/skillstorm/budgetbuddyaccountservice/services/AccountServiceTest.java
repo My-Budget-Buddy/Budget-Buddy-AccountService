@@ -66,7 +66,7 @@ public class AccountServiceTest {
         closeable.close();
     }
     //
-    @Disabled
+
     @Test 
     public void testGetTransactionByUserId(){
         String userId = "123";
@@ -79,7 +79,10 @@ public class AccountServiceTest {
         //need to mock loadbalancer since this method call is owned by the AccountService
         when(serviceInstance.getInstanceId()).thenReturn("transaction-service");
         when(serviceInstance.getUri()).thenReturn(URI.create(transactionServiceUrl));
-        when(loadBalancerClient.choose("transaction_service")).thenReturn(serviceInstance);
+        when(serviceInstance.getServiceId()).thenReturn("transaction-service");
+
+
+        when(loadBalancerClient.choose("transaction-service")).thenReturn(serviceInstance);
 
         when(accountService.getTransactionsByUserId(userId)).thenReturn(mockTransactions);
         
@@ -97,13 +100,16 @@ public class AccountServiceTest {
         // Arrange
         String userId = "123";
         List<Account> mockAccounts = new ArrayList<>();
-        mockAccounts.add(new Account(userId,AccountType.CHECKING, "123456", "00001", "Bank A", new BigDecimal(5), new BigDecimal(1500)));
+        Account mockAccount = new Account(userId, AccountType.CHECKING, "123456", "00001", "Bank A", new BigDecimal(5), new BigDecimal(1500));
+        mockAccounts.add(mockAccount);
+
         
         when(accountRepository.findByUserId(userId)).thenReturn(mockAccounts);
-        when(mockAccounts.size()).thenReturn(1);
 
-        //when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
-
+        // Mock the AccountMapper to return a non-null AccountDto
+        AccountDto mockAccountDto = new AccountDto(userId, AccountType.CHECKING, "123456", "00001", "Bank A",
+        new BigDecimal(5), new BigDecimal(1500), new BigDecimal(1500));
+        when(accountMapper.toDto(mockAccount)).thenReturn(mockAccountDto);
 
         //need to create a transaction and then mock handing over list to transaction service
         List<Transaction> mockTransactions = new ArrayList<>();
