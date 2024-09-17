@@ -205,27 +205,6 @@ public class AccountServiceTest {
         verify(accountRepository, times(1)).save(any(Account.class));
     }
 
-    //this is for reference ignore, delete after testcreate is done
-    @Disabled
-    @Test 
-    public void testCreateAccount_no_errors() {
-        Account account = new Account("123", AccountType.CHECKING, "4239434493", "432434234", "The Bank", new BigDecimal(0), new BigDecimal(0));
-        List<Account> accounts = new ArrayList<>();
-        accounts.add(account);
-        when(accountRepository.findByUserId(any(String.class))).thenReturn(accounts);
-        when(accountRepository.findById(any(int.class))).thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenReturn(account);
-
-        AccountMapper mapper = new AccountMapper();
-        when(accountMapper.toDto(any(Account.class))).thenReturn(mapper.toDto(account));
-        RestClient restClient = mock(RestClient.class);
-        ServiceInstance serviceInstance = mock(ServiceInstance.class);
-        when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
-  
-        List<AccountDto> expectedAccounts = new ArrayList<>();
-        expectedAccounts.add(mapper.toDto(account));
-
-    }
 
     // @Disabled
     // @Test
