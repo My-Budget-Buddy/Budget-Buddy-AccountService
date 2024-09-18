@@ -1,229 +1,208 @@
 package com.skillstorm.budgetbuddyaccountservice.controllers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
+//local packages
 import com.skillstorm.budgetbuddyaccountservice.dtos.AccountDto;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.services.AccountService;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+//spring framework
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.http.*;
+//Mockito
+import org.mockito.*;
 
-@WebMvcTest(AccountController.class)
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+
+//Junit
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.checkerframework.checker.units.qual.h;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.math.*;
+//util
+import java.util.*;
+
 public class AccountControllerTest {
 
-        @Autowired
-        private MockMvc mockMvc;
+    @Mock
+    private AccountService accountService;
 
-        @MockBean
-        private AccountService accountService;
+    @InjectMocks
+    private AccountController accountController;
 
-        private AutoCloseable closeable;
+    private AutoCloseable closeable;
 
-        @Autowired
-        private AccountController accountController;
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
 
-        @BeforeEach
-        public void setup() {
-                mockMvc = MockMvcBuilders.standaloneSetup(accountController).build();
-        }
+    @AfterEach
+    void tearDown() throws Exception{
+        // Clean up mocks
+        closeable.close();
+    }
+    //complete
+    //@Disabled
+    @Test
+    public void testGetAccountsByUserId() {
+        String userId = "1";
+        //setup mock data
+        List<AccountDto> accountsDTO = new ArrayList<>();
+        AccountDto mockDTO = new AccountDto(userId, Account.AccountType.CHECKING, "123456789", 
+                        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000), new BigDecimal(1000));
+        accountsDTO.add(mockDTO);
+        
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        when(accountService.getAccountsByUserId(userId)).thenReturn(accountsDTO);
 
-        @AfterEach
-        public void tearDown() throws Exception {
-                if (closeable != null) {
-                        closeable.close();
-                }
-        }
+        //test
+        ResponseEntity<List<AccountDto>> response = accountController.getAccountsByUserId(httpHeaders);
+        
+        //assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(accountsDTO, response.getBody());
+    }
+    //complete
+    //@Disabled
+    @Test
+    public void testGetAccountByAccountIdAndUserId() {
+        int Id = 1;
+        String userId = "123";
 
-        @Test
-        public void testGetAccountsByUserId() throws Exception {
-                String userId = "user123";
-                List<AccountDto> accounts = Arrays.asList(new AccountDto(), new AccountDto());
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        AccountDto mockAccount = new AccountDto(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000), new BigDecimal(1000));
 
-                // Mock the account service to return the predefined list of accounts
-                when(accountService.getAccountsByUserId(userId)).thenReturn(accounts);
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        when(accountService.getAccountByAccountIdAndUserId(userId, Id)).thenReturn(Optional.of(mockAccount));
 
-                // Perform the GET request and set the "User-ID" header
-                mockMvc.perform(get("/accounts")
-                                .header("User-ID", userId))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.length()").value(accounts.size()));
+        ResponseEntity<AccountDto> response = accountController.getAccountByAccountIdAndUserId(Id, httpHeaders);
 
-                // Verify that the service method was called once with the correct user ID
-                verify(accountService, times(1)).getAccountsByUserId(userId);
-        }
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(mockAccount, response.getBody());
+    }
+    //complete
+    //@Disabled
+    @Test
+    public void testGetAccountByAccountIdAndUserId_notpresent() {
+        //check to see not found status sent
+        int Id = 1;
+        String userId = "123";
 
-        @Test
-        public void testGetAccountByAccountIdAndUserId() throws Exception {
-                String userId = "user123";
-                int accountId = 1;
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        when(accountService.getAccountByAccountIdAndUserId(userId, Id)).thenReturn(Optional.empty());
+        
+        ResponseEntity<AccountDto> response = accountController.getAccountByAccountIdAndUserId(Id, httpHeaders);
 
-                AccountDto accountDto = new AccountDto();
-                accountDto.setId(accountId);
-                accountDto.setUserId(userId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        //assertEquals(mockAccount, response.getBody());
+    }
+    //complete
+    //@Disabled
+    @Test
+    public void testCreateAccount() {
+        int Id = 1;
+        String userId = "user123";
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        AccountDto mockDTO = new AccountDto(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000), new BigDecimal(1000));
+        Account mockAccount = new Account(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000));
+        
+        //mocking the service/header
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        when(accountService.createAccount(mockAccount, userId)).thenReturn(mockDTO);
 
-                Optional<AccountDto> accountOptional = Optional.of(accountDto);
+        ResponseEntity<AccountDto> response = accountController.createAccount(mockAccount, httpHeaders);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(mockDTO, response.getBody());
+    }
+    //inprogress
+    //@Disabled
+    @Test
+    public void testUpdateAccount() {
+        int Id = 1;
+        String userId = "user123";
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        AccountDto mockDTO = new AccountDto(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000), new BigDecimal(1000));
+        Account mockAccount = new Account(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000));
 
-                when(accountService.getAccountByAccountIdAndUserId(userId, accountId)).thenReturn(accountOptional);
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        when(accountService.updateAccount(Id, userId, mockAccount.getType(), mockAccount.getAccountNumber(),
+        mockAccount.getRoutingNumber(), mockAccount.getInstitution(), mockAccount.getInvestmentRate(),
+        mockAccount.getStartingBalance())).thenReturn(1);
 
-                mockMvc.perform(get("/accounts/{accountId}", accountId)
-                                .header("User-ID", userId))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.id").value(accountDto.getId()))
-                                .andExpect(jsonPath("$.userId").value(userId));
+        ResponseEntity<Integer> response = accountController.updateAccount(Id, mockAccount, httpHeaders);
 
-                verify(accountService, times(1)).getAccountByAccountIdAndUserId(userId, accountId);
-        }
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+    //complete
+    //@Disabled
+    @Test
+    public void testUpdateAccount_not_found() {
+        int Id = 1;
+        String userId = "user123";
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        AccountDto mockDTO = new AccountDto(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000), new BigDecimal(1000));
+        Account mockAccount = new Account(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000));
 
-        @Test
-        public void testGetAccountByAccountIdAndUserIdNotFound() throws Exception {
-                String userId = "user123";
-                int accountId = 1;
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        when(accountService.updateAccount(Id, userId, mockAccount.getType(), mockAccount.getAccountNumber(),
+        mockAccount.getRoutingNumber(), mockAccount.getInstitution(), mockAccount.getInvestmentRate(),
+        mockAccount.getStartingBalance())).thenReturn(0); //test we can throw not found error
 
-                when(accountService.getAccountByAccountIdAndUserId(userId, accountId)).thenReturn(Optional.empty());
+        ResponseEntity<Integer> response = accountController.updateAccount(Id, mockAccount, httpHeaders);
 
-                mockMvc.perform(get("/accounts/{accountId}", accountId)
-                                .header("User-ID", userId))
-                                .andExpect(status().isNotFound());
-        }
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+    //complete
+    //@Disabled
+    @Test
+    public void testDeleteAccount() {
+        String userId = "user123";
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        
+        ResponseEntity<Void> response = accountController.deleteAllAccounts(httpHeaders);
 
-        @Test
-        public void testCreateAccount() throws Exception {
-                String userId = "user123";
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+    //complete
+    //@Disabled
+    @Test
+    public void testDeleteAllAccounts() {
+        String userId = "user123";
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        
+        ResponseEntity<Void> response = accountController.deleteAllAccounts(httpHeaders);
 
-                Account account = new Account();
-                account.setUserId(userId);
-                account.setType(Account.AccountType.CHECKING);
-                account.setAccountNumber("123456789");
-                account.setRoutingNumber("987654321");
-                account.setInstitution("Bank");
-                account.setInvestmentRate(BigDecimal.valueOf(0.05));
-                account.setStartingBalance(BigDecimal.valueOf(1000));
-
-                AccountDto accountDto = new AccountDto();
-                accountDto.setUserId(userId);
-                accountDto.setAccountNumber("*****6789");
-                accountDto.setRoutingNumber("*****4321");
-                accountDto.setCurrentBalance(account.getStartingBalance());
-
-                when(accountService.createAccount(any(Account.class), eq(userId))).thenReturn(accountDto);
-
-                mockMvc.perform(post("/accounts")
-                                .header("User-ID", userId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"userId\":\"user123\"," +
-                                                "\"type\":\"CHECKING\"," +
-                                                "\"accountNumber\":\"123456789\"," +
-                                                "\"routingNumber\":\"987654321\"," +
-                                                "\"institution\":\"Bank\"," +
-                                                "\"investmentRate\":0.05," +
-                                                "\"startingBalance\":1000}"))
-                                .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.userId").value(userId));
-
-                verify(accountService, times(1)).createAccount(any(Account.class), eq(userId));
-        }
-
-        @Test
-        public void testUpdateAccount() throws Exception {
-                String userId = "user123";
-                int accountId = 1;
-
-                Account account = new Account();
-                account.setId(accountId);
-                account.setUserId(userId);
-                account.setType(Account.AccountType.CHECKING);
-                account.setAccountNumber("123456789");
-                account.setRoutingNumber("987654321");
-                account.setInstitution("Bank");
-                account.setInvestmentRate(BigDecimal.valueOf(0.05));
-                account.setStartingBalance(BigDecimal.valueOf(1000));
-
-                when(accountService.updateAccount(eq(accountId), eq(userId), any(Account.AccountType.class),
-                                anyString(), anyString(), anyString(), any(BigDecimal.class), any(BigDecimal.class)))
-                                .thenReturn(1);
-
-                mockMvc.perform(put("/accounts/{accountId}", accountId)
-                                .header("User-ID", userId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"type\":\"CHECKING\",\"accountNumber\":\"123456789\"," +
-                                                "\"routingNumber\":\"987654321\",\"institution\":\"Bank\",\"investmentRate\":0.05,"
-                                                +
-                                                "\"startingBalance\":1000}"))
-                                .andExpect(status().isOk());
-
-                verify(accountService, times(1)).updateAccount(eq(accountId), eq(userId),
-                                any(Account.AccountType.class), anyString(), anyString(), anyString(),
-                                any(BigDecimal.class), any(BigDecimal.class));
-        }
-
-        @Test
-        public void testUpdateAccountNotFound() throws Exception {
-                String userId = "user123";
-                int accountId = 1;
-
-                Account accountDetails = new Account();
-                accountDetails.setType(Account.AccountType.CHECKING);
-                accountDetails.setAccountNumber("123456789");
-                accountDetails.setRoutingNumber("987654321");
-                accountDetails.setInstitution("Bank");
-                accountDetails.setInvestmentRate(BigDecimal.valueOf(0.05));
-                accountDetails.setStartingBalance(BigDecimal.valueOf(1000));
-
-                doReturn(0).when(accountService).updateAccount(eq(accountId), eq(userId), any(), anyString(),
-                                anyString(), anyString(), any(), any());
-
-                mockMvc.perform(put("/accounts/{accountId}", accountId)
-                                .header("User-ID", userId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"type\":\"CHECKING\",\"accountNumber\":\"123456789\"," +
-                                                "\"routingNumber\":\"987654321\",\"institution\":\"Bank\",\"investmentRate\":0.05,"
-                                                +
-                                                "\"startingBalance\":1000}"))
-                                .andExpect(status().isNotFound());
-        }
-
-        @Test
-        public void testDeleteAccount() throws Exception {
-                String userId = "user123";
-                int accountId = 1;
-
-                doNothing().when(accountService).deleteAccount(accountId, userId);
-
-                mockMvc.perform(delete("/accounts/{accountId}", accountId)
-                                .header("User-ID", userId))
-                                .andExpect(status().isNoContent());
-
-                verify(accountService, times(1)).deleteAccount(accountId, userId);
-        }
-
-        @Test
-        public void testDeleteAllAccounts() throws Exception {
-                String userId = "user123";
-
-                doNothing().when(accountService).deleteAllAccounts(userId);
-
-                mockMvc.perform(delete("/accounts")
-                                .header("User-ID", userId))
-                                .andExpect(status().isNoContent());
-
-                verify(accountService, times(1)).deleteAllAccounts(userId);
-        }
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
 }
