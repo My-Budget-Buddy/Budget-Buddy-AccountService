@@ -1,10 +1,8 @@
-FROM public.ecr.aws/c1x4i8c4/alpine:latest as build
+FROM maven:3.8.3-amazoncorretto-17 as build
 WORKDIR /app
 COPY . /app
-RUN apk update && apk upgrade && apk add openjdk17-jdk maven && mvn clean package -DskipTests
+RUN mvn clean install -DskipTests
 
-FROM public.ecr.aws/c1x4i8c4/alpine:latest
-RUN apk update && apk upgrade && apk add openjdk17-jre
+FROM openjdk:17
 WORKDIR /app
 COPY --from=build /app/target/*.jar /app/app.jar
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
