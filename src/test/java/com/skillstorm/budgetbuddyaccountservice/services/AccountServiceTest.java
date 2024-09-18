@@ -202,7 +202,7 @@ public class AccountServiceTest {
         assertEquals(expectedErrorMessage, exception.getMessage());
 
     }
-    //in-progress
+    //complete
     //@Disabled
     @Test
     public void testCreateAccount_no_error() {
