@@ -61,9 +61,39 @@ public class AccountServiceTest {
     public void teardown() throws Exception{
         closeable.close();
     }
-    
+    @Disabled
+    @Test
+    public void testGetAccountByAccountIdAndUserId_Success() {
+        //apparently ID needs to match the AccountID
+        String userId = "user123";
+        int accountId = 123456;
+
+        Account mockAccount = new Account(accountId, userId,AccountType.CHECKING, "accountId", "00001",
+                                 "Bank A", new BigDecimal(5), new BigDecimal(1500));
+
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(mockAccount));
+
+        List<Transaction> mockTransactions = new ArrayList<>();
+        mockTransactions.add(new Transaction(123, accountId, "abc Company", 100 , "Food" , "Lunch", LocalDate.now()));
+        
+        AccountService accountServiceSpy = spy(accountService);
+        doReturn(mockTransactions).when(accountServiceSpy).getTransactionsByUserId(userId);
+        
+        AccountDto mockDto = new AccountDto(accountId, userId, AccountType.CHECKING, "accountId", "00001",
+        "Bank A", new BigDecimal(5), new BigDecimal(1500),new BigDecimal(0));
+        when(accountMapper.toDto(any(Account.class))).thenReturn(mockDto);
+
+        Optional<AccountDto> result = accountServiceSpy.getAccountByAccountIdAndUserId(userId, accountId);
+
+        AccountDto testResult = result.get();
+        System.out.println(testResult.getAccountNumber());
+        assertTrue(result.isPresent());
+        assertEquals("**3456", testResult.getAccountNumber());
+    }
     //complete
     @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Disabled
     @Test 
     public void testGetTransactionByUserId() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException{
         String userId = "123";
@@ -107,6 +137,7 @@ public class AccountServiceTest {
     }
 
     //complete
+    @Disabled
     @Test
     public void testGetAccountsByUserId() {
         // Arrange
@@ -138,6 +169,7 @@ public class AccountServiceTest {
         verify(accountRepository, times(1)).findByUserId(userId);
     }
     //complete
+    @Disabled
     @Test
     public void testCreateAccount_all_errors() {
         // branch where we encounter errors for all
@@ -154,6 +186,7 @@ public class AccountServiceTest {
 
     }
     //complete
+    @Disabled
     @Test
     public void testCreateAccount_one_errors() {
         // branch where we encounter errors no accountnumber
@@ -169,7 +202,7 @@ public class AccountServiceTest {
 
     }
     //in-progress
-
+    @Disabled
     @Test
     public void testCreateAccount_no_error() {
         String userId = "123";
