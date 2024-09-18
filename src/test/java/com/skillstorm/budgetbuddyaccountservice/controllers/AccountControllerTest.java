@@ -109,61 +109,99 @@ public class AccountControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         //assertEquals(mockAccount, response.getBody());
     }
-    //in-progress
+    //complete
     //@Disabled
     @Test
     public void testCreateAccount() {
         int Id = 1;
         String userId = "user123";
-
+        //setup mocks
         HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
         AccountDto mockDTO = new AccountDto(Id, userId, Account.AccountType.CHECKING, "123456789", 
         "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000), new BigDecimal(1000));
         Account mockAccount = new Account(Id, userId, Account.AccountType.CHECKING, "123456789", 
         "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000));
         
+        //mocking the service/header
         when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
-
-        when(any(HttpHeaders.class).getFirst("User-ID")).thenReturn(userId);
         when(accountService.createAccount(mockAccount, userId)).thenReturn(mockDTO);
 
-        ResponseEntity<AccountDto> response = accountController.createAccount(mockAccount, any(HttpHeaders.class));
+        ResponseEntity<AccountDto> response = accountController.createAccount(mockAccount, httpHeaders);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(mockDTO, response.getBody());
     }
-    @Disabled
+    //inprogress
+    //@Disabled
     @Test
     public void testUpdateAccount() {
+        int Id = 1;
         String userId = "user123";
-        int accountId = 1;
-        Account accountDetails = new Account();
-        when(any(HttpHeaders.class).getFirst("User-ID")).thenReturn(userId);
-        when(accountService.updateAccount(accountId, userId, accountDetails.getType(), accountDetails.getAccountNumber(),
-                accountDetails.getRoutingNumber(), accountDetails.getInstitution(), accountDetails.getInvestmentRate(),
-                accountDetails.getStartingBalance())).thenReturn(1);
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        AccountDto mockDTO = new AccountDto(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000), new BigDecimal(1000));
+        Account mockAccount = new Account(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000));
 
-        ResponseEntity<Integer> response = accountController.updateAccount(accountId, accountDetails, any(HttpHeaders.class));
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        when(accountService.updateAccount(Id, userId, mockAccount.getType(), mockAccount.getAccountNumber(),
+        mockAccount.getRoutingNumber(), mockAccount.getInstitution(), mockAccount.getInvestmentRate(),
+        mockAccount.getStartingBalance())).thenReturn(1);
+
+        ResponseEntity<Integer> response = accountController.updateAccount(Id, mockAccount, httpHeaders);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
-    @Disabled
+    //complete
+    //@Disabled
+    @Test
+    public void testUpdateAccount_not_found() {
+        int Id = 1;
+        String userId = "user123";
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        AccountDto mockDTO = new AccountDto(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000), new BigDecimal(1000));
+        Account mockAccount = new Account(Id, userId, Account.AccountType.CHECKING, "123456789", 
+        "987654321", "Bank of America", new BigDecimal(0.01), new BigDecimal(1000));
+
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        when(accountService.updateAccount(Id, userId, mockAccount.getType(), mockAccount.getAccountNumber(),
+        mockAccount.getRoutingNumber(), mockAccount.getInstitution(), mockAccount.getInvestmentRate(),
+        mockAccount.getStartingBalance())).thenReturn(0); //test we can throw not found error
+
+        ResponseEntity<Integer> response = accountController.updateAccount(Id, mockAccount, httpHeaders);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+    //complete
+    //@Disabled
     @Test
     public void testDeleteAccount() {
         String userId = "user123";
-        int accountId = 1;
-        when(any(HttpHeaders.class).getFirst("User-ID")).thenReturn(userId);
-
-        ResponseEntity<Void> response = accountController.deleteAccount(accountId, any(HttpHeaders.class));
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        
+        ResponseEntity<Void> response = accountController.deleteAllAccounts(httpHeaders);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
-    @Disabled
+    //complete
+    //@Disabled
     @Test
     public void testDeleteAllAccounts() {
         String userId = "user123";
-        when(any(HttpHeaders.class).getFirst("User-ID")).thenReturn(userId);
-
-        ResponseEntity<Void> response = accountController.deleteAllAccounts(any(HttpHeaders.class));
+        //setup mocks
+        HttpHeaders httpHeaders = mock(HttpHeaders.class);
+        
+        when(httpHeaders.getFirst("User-ID")).thenReturn(userId);
+        
+        ResponseEntity<Void> response = accountController.deleteAllAccounts(httpHeaders);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
