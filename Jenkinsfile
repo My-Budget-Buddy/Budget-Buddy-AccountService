@@ -53,74 +53,74 @@ pipeline {
     }
 
     stages {
-        stage('Prepare Version') {
-            steps {
-                script {
-                    def newPatchVersion = PATCH_VERSION.toInteger() + 1
-                    env.VERSION = "${MAJOR_VERSION}.${MINOR_VERSION}.${newPatchVersion}"
-                    echo "Updated version to: ${env.VERSION}"
-                }
-            }
-        }
+        // stage('Prepare Version') {
+        //     steps {
+        //         script {
+        //             def newPatchVersion = PATCH_VERSION.toInteger() + 1
+        //             env.VERSION = "${MAJOR_VERSION}.${MINOR_VERSION}.${newPatchVersion}"
+        //             echo "Updated version to: ${env.VERSION}"
+        //         }
+        //     }
+        // }
 
-        stage('Deploy Postgres') {
-            when {
-                branch 'testing-cohort'
-            }
-            steps {
-                container('kaniko') {
-                    script {
-                        sh 'aws eks --region us-east-1 update-kubeconfig --name project3-eks'
-                        sh 'kubectl config current-context'
-                        withCredentials([
-                          string(credentialsId: 'STAGING_DATABASE_USER', variable: 'postgres-user'),
-                          string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'postgres-password')])
-                {
-                            sh '''
-                    cd kubernetes
-                    kubectl apply -f postgres-secret.yaml
-                    kubectl apply -f postgres-service.yaml
-                    kubectl apply -f postgres-deployment.yaml
-                    kubectl describe pods
-                  '''
-                }
-                    }
-                }
-            }
-        }
+        // stage('Deploy Postgres') {
+        //     when {
+        //         branch 'testing-cohort'
+        //     }
+        //     steps {
+        //         container('kaniko') {
+        //             script {
+        //                 sh 'aws eks --region us-east-1 update-kubeconfig --name project3-eks'
+        //                 sh 'kubectl config current-context'
+        //                 withCredentials([
+        //                   string(credentialsId: 'STAGING_DATABASE_USER', variable: 'postgres-user'),
+        //                   string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'postgres-password')])
+        //         {
+        //                     sh '''
+        //             cd kubernetes
+        //             kubectl apply -f postgres-secret.yaml
+        //             kubectl apply -f postgres-service.yaml
+        //             kubectl apply -f postgres-deployment.yaml
+        //             kubectl describe pods
+        //           '''
+        //         }
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage('Build for Staging') {
-            when {
-                branch 'testing-cohort'
-            }
+        // stage('Build for Staging') {
+        //     when {
+        //         branch 'testing-cohort'
+        //     }
 
-            steps {
-                container('maven') {
-                    sh 'mvn clean install -DskipTests=true -Dspring.profiles.active=build'
-                }
-            }
-        }
+        //     steps {
+        //         container('maven') {
+        //             sh 'mvn clean install -DskipTests=true -Dspring.profiles.active=build'
+        //         }
+        //     }
+        // }
 
-        stage('Test and Analyze for Staging') {
-            when {
-                branch 'testing-cohort'
-            }
+        // stage('Test and Analyze for Staging') {
+        //     when {
+        //         branch 'testing-cohort'
+        //     }
 
-            steps {
-                container('maven') {
-                    sh 'mvn clean verify -Pcoverage -Dspring.profiles.active=test'
-                    withSonarQubeEnv('SonarCloud') {
-                        sh '''
-              mvn sonar:sonar \
-                  -Dsonar.projectKey=My-Budget-Buddy_Budget-Buddy-AccountService \
-                  -Dsonar.projectName=Budget-Buddy-AccountService \
-                  -Dsonar.java.binaries=target/classes \
-                  -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-              '''
-                    }
-                }
-            }
-        }
+        //     steps {
+        //         container('maven') {
+        //             sh 'mvn clean verify -Pcoverage -Dspring.profiles.active=test'
+        //             withSonarQubeEnv('SonarCloud') {
+        //                 sh '''
+        //       mvn sonar:sonar \
+        //           -Dsonar.projectKey=My-Budget-Buddy_Budget-Buddy-AccountService \
+        //           -Dsonar.projectName=Budget-Buddy-AccountService \
+        //           -Dsonar.java.binaries=target/classes \
+        //           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+        //       '''
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Build and Push Docker Image for Staging') {
             when {
