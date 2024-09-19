@@ -21,6 +21,7 @@ public class AccountTest {
                 account = new Account();
         }
 
+
         @Test
         void testEqualsAndHashCode() {
                 Account account1 = new Account(1, "user1", Account.AccountType.CHECKING, "123456789", "987654321",

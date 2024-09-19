@@ -70,6 +70,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+		<!-- MeanBean -->
+        <dependency>
+            <groupId>com.github.meanbeanlib</groupId>
+            <artifactId>meanbean</artifactId>
+            <version>3.0.0-M9</version>
+        </dependency>
+
 		<!-- micrometer is a metric collection library that can integrate with spring boot actuator and supports CloudWatch -->
 <!--    <dependency>-->
 <!--    	<groupId>io.micrometer</groupId>-->
