@@ -7,7 +7,7 @@ pipeline {
             spec:
               containers:
               - name: maven
-                image: maven:latest
+                image: 924809052459.dkr.ecr.us-east-1.amazonaws.com/maven:latest
                 command:
                 - "sleep"
                 args:
