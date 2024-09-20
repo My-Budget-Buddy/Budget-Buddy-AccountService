@@ -63,31 +63,29 @@ pipeline {
         //     }
         // }
 
-        // stage('Deploy Postgres') {
-        //     when {
-        //         branch 'testing-cohort'
-        //     }
-        //     steps {
-        //         container('kaniko') {
-        //             script {
-        //                 sh 'aws eks --region us-east-1 update-kubeconfig --name project3-eks'
-        //                 sh 'kubectl config current-context'
-        //                 withCredentials([
-        //                   string(credentialsId: 'STAGING_DATABASE_USER', variable: 'postgres-user'),
-        //                   string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'postgres-password')])
-        //         {
-        //                     sh '''
-        //             cd kubernetes
-        //             kubectl apply -f postgres-secret.yaml
-        //             kubectl apply -f postgres-service.yaml
-        //             kubectl apply -f postgres-deployment.yaml
-        //             kubectl describe pods
-        //           '''
-        //         }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Deploy Postgres') {
+            when {
+                branch 'testing-cohort'
+            }
+            steps {
+                container('kaniko') {
+                    script {
+                        sh 'aws eks --region us-east-1 update-kubeconfig --name project3-eks'
+                        sh 'kubectl config current-context'
+                        withCredentials([
+                          string(credentialsId: 'STAGING_DATABASE_USER', variable: 'postgres-user'),
+                          string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'postgres-password')])
+                        {
+                          sh '''
+                            git clone https://github.com/My-Budget-Buddy/Budget-Buddy-Kubernetes.git
+                            cd Budget-Buddy-Kubernetes/Databases
+                            bash deploy-database.sh $NAMESPACE
+                          '''
+                        }
+                    }
+                }
+            }
+        }
 
         // stage('Build for Staging') {
         //     when {
