@@ -50,6 +50,9 @@ public class AccountServiceIntegrationTest {
     @MockBean
     private LoadBalancerClient loadBalancerClient;
 
+    @MockBean
+    private ServiceInstance serviceInstance;
+
     /*
      * When test runs successfully we get a serialized restClient response which is a empty list of transactions.
      */
