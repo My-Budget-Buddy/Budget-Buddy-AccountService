@@ -1,4 +1,4 @@
-package com.skillstorm.budgetbuddyaccountservice.services.Unit;
+package com.skillstorm.budgetbuddyaccountservice.services.prev_cohort_work;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,7 +29,7 @@ import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
 import com.skillstorm.budgetbuddyaccountservice.services.AccountService;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceDeleteTests {
+public class AccountServiceCreateTests {
 
     @InjectMocks
     private static AccountService accountService;
@@ -84,7 +84,7 @@ public class AccountServiceDeleteTests {
     }
     @Disabled
     @Test
-    public void deleteAccountTest() {
+    public void createAccountTest() {
         Account account = new Account(
             "123",
             AccountType.CHECKING,
@@ -95,21 +95,26 @@ public class AccountServiceDeleteTests {
             new BigDecimal(0)
         );
 
-        ServiceInstance serviceInstance = new TestServiceInstance();
-        when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
+        List<Account> accounts = new ArrayList<>();
+        accounts.add(account);
+        when(accountRepository.findByUserId(any(String.class))).thenReturn(accounts);
         when(accountRepository.findById(any(int.class))).thenReturn(Optional.of(account));
         when(accountRepository.save(any(Account.class))).thenReturn(account);
 
         AccountMapper mapper = new AccountMapper();
         when(accountMapper.toDto(any(Account.class))).thenReturn(mapper.toDto(account));
 
+        ServiceInstance serviceInstance = new TestServiceInstance();
+        when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
+
         accountService.createAccount(account, "123");
-        accountService.deleteAccount(1, "123");
 
-        List<AccountDto> accounts = accountService.getAccountsByUserId("123");
+        List<AccountDto> actualAccounts = accountService.getAccountsByUserId("123");
+
         List<AccountDto> expectedAccounts = new ArrayList<>();
+        expectedAccounts.add(accountMapper.toDto(account));
 
-        assertEquals(expectedAccounts, accounts);
+        assertEquals(expectedAccounts, actualAccounts);
     }
 
 }
