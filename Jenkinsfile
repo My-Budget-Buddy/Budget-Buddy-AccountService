@@ -74,7 +74,7 @@ pipeline {
 
     // Global Environment Variables
     environment {
-        SERVICE_NAME = 'account-service'
+        SERVICE_NAME = 'account-services'
         PASCAL_SERVICE_NAME = 'AccountService'
         CLIENT_ID = credentials('GITHUB_APP_CLIENT_ID')
         PEM = credentials('GITHUB_APP_PEM')
