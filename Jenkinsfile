@@ -193,24 +193,21 @@ pipeline {
                         imageTag = 'latest'
                         }
 
-                        sh """
+                        sh '''
                         export IMAGE_TAG=''' + imageTag + '''
                         rm -rf /var/lock
                         # Get the ECR login password
-                        ECR_LOGIN=\$(aws ecr get-login-password --region \$AWS_REGION)
-                        if [ -z "\$ECR_LOGIN" ]; then
+                        export ECR_LOGIN=$(aws ecr get-login-password --region $AWS_REGION)
+                        if [ -z "$ECR_LOGIN" ]; then
                             echo "Failed to get ECR login password"
                             exit 1
                         fi
                         mkdir -p /kaniko/.docker
-                        echo "{\\"auths\\":{\\"924809052459.dkr.ecr.us-east-1.amazonaws.com\\":{\\"auth\\":\\"\$(echo -n AWS:\$ECR_LOGIN | base64)\\"}}}" > /kaniko/.docker/config.json
-                        echo \${imageTag}
-                        
-                        /kaniko/executor \\
-                            --dockerfile=Dockerfile.prod \\
-                            --context=dir://. \\
-                            --destination=924809052459.dkr.ecr.us-east-1.amazonaws.com/\${SERVICE_NAME}:\${IMAGE_TAG}
-                        """
+                        echo "{\"auths\":{\"924809052459.dkr.ecr.us-east-1.amazonaws.com\":{\"auth\":\"$(echo -n AWS:$ECR_LOGIN | base64)\"}}}" > /kaniko/.docker/config.json
+                            echo ${imageTag}
+                            
+                        /kaniko/executor --dockerfile=Dockerfile.prod --context=dir://. --destination=924809052459.dkr.ecr.us-east-1.amazonaws.com/${SERVICE_NAME}:${IMAGE_TAG}
+                        '''
                     }
                 }
             }
