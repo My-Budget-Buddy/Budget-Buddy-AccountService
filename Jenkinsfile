@@ -230,7 +230,7 @@ pipeline {
 
                 cd Budget-Buddy-Kubernetes/Deployments/Services
                 # set test image
-                sed -i "s/test-latest/test-latest/" deployment-${SERVICE_NAME}.yaml
+                sed -i "s/<image-version>/test-latest/" deployment-${SERVICE_NAME}.yaml
                 # set test DB url
                 # note use of | as delimiter because of forward slashes in the url
                 sed -i 's|<database-url>|${DATABASE_URL}|' deployment-${SERVICE_NAME}.yaml
@@ -330,7 +330,7 @@ pipeline {
 
                 cd Budget-Buddy-Kubernetes/Deployments/Services
                 # set prod image
-                sed -i "s/latest/latest/" deployment-${SERVICE_NAME}.yaml
+                sed -i "s/<image-version>/latest/" deployment-${SERVICE_NAME}.yaml
 
                 # set prod DB url
                 # note use of | as delimiter because of forward slashes in the url
