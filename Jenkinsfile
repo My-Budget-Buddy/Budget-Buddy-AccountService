@@ -614,7 +614,7 @@ def requestReviewersForRevert(prAuthor, GITHUB_TOKEN, jsonResponse) {
 
   if (revertRequestResponse.status == 201) {
     echo "Reviewers requested for revert PR #${revertPrNumber}."
-    } else {
+   } else {
     echo "Failed to request reviewers for revert PR #${revertPrNumber}. Status: ${revertRequestResponse.status}"
   }
 }
