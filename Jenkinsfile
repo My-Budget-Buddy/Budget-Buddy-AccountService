@@ -108,11 +108,12 @@ pipeline {
       }
 
       // Build the project
-      stage('Build')
+      stage('Build') {
         steps {
           container('maven') {
             sh 'mvn clean install -DskipTests=true -Dspring.profiles.active=build'
           }
+        }
       }
 
       // Set up the database for the staging environment
