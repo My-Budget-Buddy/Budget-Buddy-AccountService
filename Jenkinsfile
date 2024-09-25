@@ -76,8 +76,6 @@ pipeline {
     environment {
         SERVICE_NAME = 'account-service'
         PASCAL_SERVICE_NAME = 'AccountService'
-        STAGING_DATABASE_URL = 'jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy'
-        PROD_DATABASE_URL = 'jdbc:postgresql://budgetbuddy-0.c4eqo06kg56i.us-east-1.rds.amazonaws.com/budgetbuddy'
         CLIENT_ID = credentials('GITHUB_APP_CLIENT_ID')
         PEM = credentials('GITHUB_APP_PEM')
         REVIEWER_GITHUB_USERNAMES = '"brittshook"'
@@ -148,7 +146,6 @@ pipeline {
             }
         }
     
-        // Run coverage and analysis for the staging environment
         stage('Test and Analyze for Staging') {
             when {
                 branch 'testing-cohort'
@@ -160,13 +157,12 @@ pipeline {
                     string(credentialsId: 'STAGING_DATABASE_USER', variable: 'DATABASE_USER'),
                     string(credentialsId: 'STAGING_DATABASE_PASSWORD', variable: 'DATABASE_PASS')])
                     {
-                        sh """
-                            export DATABASE_URL=${STAGING_DATABASE_URL}
+                        sh '''
                             mvn clean verify -Pcoverage -Dspring.profiles.active=test \
-                                -Dspring.datasource.url=$DATABASE_URL \
+                                -Dspring.datasource.url=jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy \
                                 -Dspring.datasource.username=$DATABASE_USER \
                                 -Dspring.datasource.password=$DATABASE_PASS
-                        """
+                        '''
                         withSonarQubeEnv('SonarCloud') {
                             sh """
                                 mvn sonar:sonar \
@@ -342,7 +338,7 @@ pipeline {
 
                     # set prod DB url
                     # note use of | as delimiter because of forward slashes in the url
-                    sed -i 's|<database-url>|${PROD_DATABASE_URL}|' deployment-${SERVICE_NAME}.yaml
+                    sed -i 's|<database-url>|jdbc:postgresql://budgetbuddy-0.c4eqo06kg56i.us-east-1.rds.amazonaws.com/budgetbuddy|' deployment-${SERVICE_NAME}.yaml
 
                     # reapply
 
