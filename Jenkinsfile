@@ -90,7 +90,7 @@ pipeline {
           script {
             if (env.BRANCH_NAME == "${TEST_BRANCH}") {
               env.NAMESPACE = 'staging'
-                      } else if (env.BRANCH_NAME == "${MAIN_BRANCH}") {
+            } else if (env.BRANCH_NAME == "${MAIN_BRANCH}") {
               env.NAMESPACE = 'prod'
             }
           }
@@ -108,16 +108,11 @@ pipeline {
       }
 
       // Build the project
-      stage('Build') {
-        when {
-          branch 'testing-cohort'
-        }
-
+      stage('Build')
         steps {
           container('maven') {
             sh 'mvn clean install -DskipTests=true -Dspring.profiles.active=build'
           }
-        }
       }
 
       // Set up the database for the staging environment
