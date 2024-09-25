@@ -76,7 +76,7 @@ pipeline {
     environment {
         SERVICE_NAME = 'account-service'
         PASCAL_SERVICE_NAME = 'AccountService'
-        STAGING_DATABASE_URL = 'jdbc:postgresql://postgres:5432/my_budget_buddy'
+        STAGING_DATABASE_URL = 'jdbc:postgresql://postgres.staging.svc.cluster.local:5432/my_budget_buddy'
         PROD_DATABASE_URL = 'jdbc:postgresql://budgetbuddy-0.c4eqo06kg56i.us-east-1.rds.amazonaws.com/budgetbuddy'
         CLIENT_ID = credentials('GITHUB_APP_CLIENT_ID')
         PEM = credentials('GITHUB_APP_PEM')
@@ -201,16 +201,19 @@ pipeline {
                         export IMAGE_TAG=''' + imageTag + '''
                         rm -rf /var/lock
                         # Get the ECR login password
-                        export ECR_LOGIN=$(aws ecr get-login-password --region $AWS_REGION)
-                        if [ -z "$ECR_LOGIN" ]; then
+                        ECR_LOGIN=\$(aws ecr get-login-password --region \$AWS_REGION)
+                        if [ -z "\$ECR_LOGIN" ]; then
                             echo "Failed to get ECR login password"
                             exit 1
                         fi
                         mkdir -p /kaniko/.docker
-                        echo "{\"auths\":{\"924809052459.dkr.ecr.us-east-1.amazonaws.com\":{\"auth\":\"$(echo -n AWS:$ECR_LOGIN | base64)\"}}}" > /kaniko/.docker/config.json
-                            echo ${imageTag}
-                            
-                        /kaniko/executor --dockerfile=Dockerfile.prod --context=dir://. --destination=924809052459.dkr.ecr.us-east-1.amazonaws.com/${SERVICE_NAME}:${IMAGE_TAG}
+                        echo "{\\"auths\\":{\\"924809052459.dkr.ecr.us-east-1.amazonaws.com\\":{\\"auth\\":\\"\$(echo -n AWS:\$ECR_LOGIN | base64)\\"}}}" > /kaniko/.docker/config.json
+                        echo \${imageTag}
+                        
+                        /kaniko/executor \\
+                            --dockerfile=Dockerfile.prod \\
+                            --context=dir://. \\
+                            --destination=924809052459.dkr.ecr.us-east-1.amazonaws.com/\${SERVICE_NAME}:\${IMAGE_TAG}
                         """
                     }
                 }
