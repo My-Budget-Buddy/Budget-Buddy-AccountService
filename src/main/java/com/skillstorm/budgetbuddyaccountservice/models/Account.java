@@ -138,7 +138,7 @@ public class Account {
     public void setStartingBalance(BigDecimal startingBalance) {
         this.startingBalance = startingBalance;
     }
-
+    
     @Override
     public int hashCode() {
         final int prime = 31;

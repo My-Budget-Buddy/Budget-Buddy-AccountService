@@ -1,8 +1,8 @@
 spring:
     datasource:
-        url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/accounts}
-        username: ${DATABASE_USERNAME:postgres}
-        password: ${DATABASE_PASSWORD:postgres}
+        url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/my_budget_buddy}
+        username: ${DATABASE_USER:postgres}
+        password: ${DATABASE_PASS:}
         driverClassName: org.postgresql.Driver
     output:
         ansi:

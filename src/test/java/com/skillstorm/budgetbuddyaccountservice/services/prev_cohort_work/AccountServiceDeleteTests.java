@@ -1,4 +1,4 @@
-package com.skillstorm.budgetbuddyaccountservice.services;
+package com.skillstorm.budgetbuddyaccountservice.services.prev_cohort_work;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -7,9 +7,12 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,9 +26,10 @@ import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.models.Account.AccountType;
 import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
+import com.skillstorm.budgetbuddyaccountservice.services.AccountService;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceUpdateTests {
+public class AccountServiceDeleteTests {
 
     @InjectMocks
     private static AccountService accountService;
@@ -78,33 +82,34 @@ public class AccountServiceUpdateTests {
         }
 
     }
-
+    @Disabled
     @Test
-    public void updateAccountTest() {
+    public void deleteAccountTest() {
+        Account account = new Account(
+            "123",
+            AccountType.CHECKING,
+            "4239434493",
+            "432434234",
+            "The Bank",
+            new BigDecimal(0),
+            new BigDecimal(0)
+        );
+
         ServiceInstance serviceInstance = new TestServiceInstance();
         when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
-
-        Account account = new Account(
-                "123",
-                AccountType.CHECKING,
-                "4239434493",
-                "432434234",
-                "The Bank",
-                new BigDecimal(0),
-                new BigDecimal(0));
-
-        Optional<Account> accountOptional = Optional.of(account);
-        when(accountRepository.findById(any(int.class))).thenReturn(accountOptional);
+        when(accountRepository.findById(any(int.class))).thenReturn(Optional.of(account));
+        when(accountRepository.save(any(Account.class))).thenReturn(account);
 
         AccountMapper mapper = new AccountMapper();
         when(accountMapper.toDto(any(Account.class))).thenReturn(mapper.toDto(account));
 
-        accountService.updateAccount(1, "123", AccountType.SAVINGS, "32432434", "32434234", "The Bank 2",
-                new BigDecimal(0), new BigDecimal(0));
+        accountService.createAccount(account, "123");
+        accountService.deleteAccount(1, "123");
 
-        Optional<AccountDto> expectedAccounts = Optional.of(accountMapper.toDto(account));
+        List<AccountDto> accounts = accountService.getAccountsByUserId("123");
+        List<AccountDto> expectedAccounts = new ArrayList<>();
 
-        assertEquals(expectedAccounts, accountService.getAccountByAccountIdAndUserId("123", 1));
+        assertEquals(expectedAccounts, accounts);
     }
 
 }

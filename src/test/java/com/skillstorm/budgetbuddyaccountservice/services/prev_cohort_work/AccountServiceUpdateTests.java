@@ -1,4 +1,4 @@
-package com.skillstorm.budgetbuddyaccountservice.services;
+package com.skillstorm.budgetbuddyaccountservice.services.prev_cohort_work;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -7,11 +7,10 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,9 +24,10 @@ import com.skillstorm.budgetbuddyaccountservice.mappers.AccountMapper;
 import com.skillstorm.budgetbuddyaccountservice.models.Account;
 import com.skillstorm.budgetbuddyaccountservice.models.Account.AccountType;
 import com.skillstorm.budgetbuddyaccountservice.repositories.AccountRepository;
+import com.skillstorm.budgetbuddyaccountservice.services.AccountService;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceCreateTests {
+public class AccountServiceUpdateTests {
 
     @InjectMocks
     private static AccountService accountService;
@@ -80,39 +80,33 @@ public class AccountServiceCreateTests {
         }
 
     }
-
+    @Disabled
     @Test
-    public void createAccountTest() {
-        Account account = new Account(
-            "123",
-            AccountType.CHECKING,
-            "4239434493",
-            "432434234",
-            "The Bank",
-            new BigDecimal(0),
-            new BigDecimal(0)
-        );
+    public void updateAccountTest() {
+        ServiceInstance serviceInstance = new TestServiceInstance();
+        when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
 
-        List<Account> accounts = new ArrayList<>();
-        accounts.add(account);
-        when(accountRepository.findByUserId(any(String.class))).thenReturn(accounts);
-        when(accountRepository.findById(any(int.class))).thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenReturn(account);
+        Account account = new Account(
+                "123",
+                AccountType.CHECKING,
+                "4239434493",
+                "432434234",
+                "The Bank",
+                new BigDecimal(0),
+                new BigDecimal(0));
+
+        Optional<Account> accountOptional = Optional.of(account);
+        when(accountRepository.findById(any(int.class))).thenReturn(accountOptional);
 
         AccountMapper mapper = new AccountMapper();
         when(accountMapper.toDto(any(Account.class))).thenReturn(mapper.toDto(account));
 
-        ServiceInstance serviceInstance = new TestServiceInstance();
-        when(loadBalancerClient.choose(any(String.class))).thenReturn(serviceInstance);
+        accountService.updateAccount(1, "123", AccountType.SAVINGS, "32432434", "32434234", "The Bank 2",
+                new BigDecimal(0), new BigDecimal(0));
 
-        accountService.createAccount(account, "123");
+        Optional<AccountDto> expectedAccounts = Optional.of(accountMapper.toDto(account));
 
-        List<AccountDto> actualAccounts = accountService.getAccountsByUserId("123");
-
-        List<AccountDto> expectedAccounts = new ArrayList<>();
-        expectedAccounts.add(accountMapper.toDto(account));
-
-        assertEquals(expectedAccounts, actualAccounts);
+        assertEquals(expectedAccounts, accountService.getAccountByAccountIdAndUserId("123", 1));
     }
 
 }

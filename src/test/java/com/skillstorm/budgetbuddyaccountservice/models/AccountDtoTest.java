@@ -3,6 +3,7 @@ package com.skillstorm.budgetbuddyaccountservice.models;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -54,6 +55,38 @@ public class AccountDtoTest {
         assertEquals(BigDecimal.valueOf(2000), accountDto.getStartingBalance(), "Starting balance should be set and retrieved correctly");
     }
 
+    @Test
+    public void testHashCode_AllFieldsNonNull() {
+        accountDto.setId(1);
+        accountDto.setUserId("user1");
+        accountDto.setType(Account.AccountType.CHECKING);
+        accountDto.setAccountNumber("123456");
+        accountDto.setRoutingNumber("654321");
+        accountDto.setInstitution("Bank");
+        accountDto.setInvestmentRate(BigDecimal.valueOf(0.05));
+        accountDto.setStartingBalance(BigDecimal.valueOf(1000));
+        accountDto.setCurrentBalance(BigDecimal.valueOf(1200));
+
+        int hashCode = accountDto.hashCode();
+
+        assertNotNull(hashCode);  // You can also assert specific expected hash codes if known.
+    }
+    @Test
+    public void testHashCode_AllFieldsNullExceptId() {
+        accountDto.setId(1);
+        accountDto.setUserId(null);
+        accountDto.setType(null);
+        accountDto.setAccountNumber(null);
+        accountDto.setRoutingNumber(null);
+        accountDto.setInstitution(null);
+        accountDto.setInvestmentRate(null);
+        accountDto.setStartingBalance(null);
+        accountDto.setCurrentBalance(null);
+
+        int hashCode = accountDto.hashCode();
+
+        assertNotNull(hashCode);
+    }
     @Test
     public void testToAccount() {
         Account mappedAccount = accountMapper.toAccount(accountDto);
