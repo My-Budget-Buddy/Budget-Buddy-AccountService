@@ -308,7 +308,7 @@ pipeline {
             }
           }
         }
-      // }
+      }
 
     // Deploy the service to EKS for production
       stage('Deploy to EKS for Production') {
